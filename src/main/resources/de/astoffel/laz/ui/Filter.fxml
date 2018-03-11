@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright (C) 2018 Andreas Stoffel
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<GridPane hgap="5.0" maxHeight="1.7976931348623157E308" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.astoffel.laz.ui.FilterController">
+	<columnConstraints>
+		<ColumnConstraints hgrow="SOMETIMES" />
+		<ColumnConstraints hgrow="SOMETIMES" />
+	</columnConstraints>
+	<rowConstraints>
+		<RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+	</rowConstraints>
+	<children>
+		<TitledPane collapsible="false" maxHeight="1.7976931348623157E308" text="Kategorie" GridPane.vgrow="ALWAYS">
+			<content>
+				<ListView fx:id="categoryFilter" />
+			</content>
+		</TitledPane>
+		<TitledPane collapsible="false" maxHeight="1.7976931348623157E308" text="Jury" GridPane.columnIndex="1" GridPane.vgrow="ALWAYS">
+			<content>
+				<ListView fx:id="juryFilter" />
+			</content>
+		</TitledPane>
+	</children>
+</GridPane>
