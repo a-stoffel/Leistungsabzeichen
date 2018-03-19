@@ -40,6 +40,7 @@ import javafx.beans.value.WeakChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -140,8 +141,15 @@ public class ParticipationController {
 		juryColumn.setCellFactory(param -> {
 			return new TextFieldTableCell<>(new JuryConverter());
 		});
+		
+		filteredParticipations.sort((a,b) -> {
+			return a.getParticipant().get().compareTo(b.getParticipant().get());
+		});
+		
+		SortedList<ObservableParticipation> sortedParticipations = new SortedList<>(filteredParticipations);
+		sortedParticipations.comparatorProperty().bind(table.comparatorProperty());
 
-		table.setItems(filteredParticipations);
+		table.setItems(sortedParticipations);
 	}
 
 	private void reloadData() {
