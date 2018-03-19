@@ -44,7 +44,7 @@ public class MetaController {
 	@FXML
 	private TextField locationTextField;
 	@FXML
-	private TextField whenTextField;
+	private TextField eventDateTextField;
 
 	@FXML
 	public void initialize() {
@@ -65,13 +65,13 @@ public class MetaController {
 	private void reloadData() {
 		if (meta != null) {
 			locationTextField.textProperty().unbindBidirectional(meta.locationProperty());
-			whenTextField.textProperty().unbindBidirectional(meta.whenProperty());
+			eventDateTextField.textProperty().unbindBidirectional(meta.eventDateProperty());
 			meta = null;
 		}
 		Project project = application.projectProperty().get();
 		if (project == null) {
 			locationTextField.setDisable(true);
-			whenTextField.setDisable(true);
+			eventDateTextField.setDisable(true);
 		} else {
 			DataModel model = project.getModel();
 			Session session = model.getSession();
@@ -79,9 +79,9 @@ public class MetaController {
 			try {
 				meta = new ObservableMeta(model, Meta.getInstance(session));
 				locationTextField.textProperty().bindBidirectional(meta.locationProperty());
-				whenTextField.textProperty().bindBidirectional(meta.whenProperty());
+				eventDateTextField.textProperty().bindBidirectional(meta.eventDateProperty());
 				locationTextField.setDisable(false);
-				whenTextField.setDisable(false);
+				eventDateTextField.setDisable(false);
 				transaction.commit();
 			} catch (Throwable th) {
 				transaction.rollback();

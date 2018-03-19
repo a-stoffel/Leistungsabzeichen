@@ -157,7 +157,6 @@ public abstract class ImportDatabase {
 					grade.setParameter("grade", a.getGrade());
 					Assessment assessment = participation.getAssessment(exam.uniqueResult());
 					assessment.setGrade(grade.uniqueResult());
-					assessment.setParticipated(a.getParticipated());
 				}
 				session.persist(participation);
 			}

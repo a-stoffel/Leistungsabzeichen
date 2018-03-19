@@ -19,8 +19,6 @@ package de.astoffel.laz.model;
 import java.io.Serializable;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
-import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -36,6 +34,8 @@ import javax.persistence.Version;
 @Access(AccessType.FIELD)
 public class Assessment implements Serializable {
 
+	private static final long serialVersionUID = 0L;
+
 	@Id
 	@GeneratedValue
 	private Long id;
@@ -46,10 +46,6 @@ public class Assessment implements Serializable {
 	@JoinColumn(nullable = true)
 	private Grade grade;
 
-	@Basic
-	@Column
-	private Boolean participated;
-
 	public Assessment() {
 	}
 
@@ -59,14 +55,6 @@ public class Assessment implements Serializable {
 
 	public void setGrade(Grade grade) {
 		this.grade = grade;
-	}
-
-	public Boolean getParticipated() {
-		return participated;
-	}
-
-	public void setParticipated(Boolean participated) {
-		this.participated = participated;
 	}
 
 }

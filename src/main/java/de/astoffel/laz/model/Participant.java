@@ -38,17 +38,21 @@ import javax.persistence.Version;
 	@NamedQuery(
 			name = "findParticipant",
 			query = "from Participant p where p.name = :name"
-	),
+	)
+	,
 	 @NamedQuery(
 			name = "findAllParticipants",
 			query = "from Participant p"
-	),
+	)
+	,
 	 @NamedQuery(
 			name = "deleteParticipants",
 			query = "delete from Participant p"
 	)
 })
 public class Participant implements Serializable {
+
+	private static final long serialVersionUID = 0L;
 
 	@Id
 	@GeneratedValue

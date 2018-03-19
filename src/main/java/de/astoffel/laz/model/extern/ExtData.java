@@ -77,7 +77,7 @@ public final class ExtData {
 			List<Jury> juries, List<Category> categories,
 			List<Exam> exams, Map<Participant, List<Participation>> participants) {
 		this.location = meta.getLocation();
-		this.when = meta.getWhen();
+		this.when = meta.getEventDate();
 		for (Grade g : grades) {
 			this.grades.add(new ExtGrade(g));
 		}

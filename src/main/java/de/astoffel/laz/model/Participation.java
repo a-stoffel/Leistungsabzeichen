@@ -69,6 +69,8 @@ import org.hibernate.annotations.OnDeleteAction;
 })
 public class Participation implements Serializable {
 
+	private static final long serialVersionUID = 0L;
+
 	@Id
 	@GeneratedValue
 	private Long id;

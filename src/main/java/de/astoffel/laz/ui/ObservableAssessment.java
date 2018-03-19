@@ -18,7 +18,6 @@ package de.astoffel.laz.ui;
 
 import de.astoffel.laz.model.Assessment;
 import de.astoffel.laz.model.DataModel;
-import de.astoffel.laz.model.Exam;
 import de.astoffel.laz.model.Grade;
 import javafx.beans.property.ObjectProperty;
 
@@ -30,28 +29,15 @@ final class ObservableAssessment {
 
 	private final Assessment assessment;
 	private final ObjectProperty<Grade> grade;
-	private final ObjectProperty<Boolean> participated;
 
 	public ObservableAssessment(DataModel model, Assessment assessment) {
 		this.assessment = assessment;
 		this.grade = new UpdateObjectProperty<>(
 				model, assessment, Assessment::getGrade, Assessment::setGrade);
-		this.participated = new UpdateObjectProperty<>(
-				model, assessment, Assessment::getParticipated, Assessment::setParticipated);
-		
-		this.grade.addListener((source, oldValue, newValue) -> {
-			if (newValue != null) {
-				this.participated.set(true);
-			}
-		});
 	}
 
 	public ObjectProperty<Grade> gradeProperty() {
 		return grade;
-	}
-
-	public ObjectProperty<Boolean> participatedProperty() {
-		return participated;
 	}
 
 }

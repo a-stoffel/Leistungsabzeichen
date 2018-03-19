@@ -84,7 +84,6 @@ final class ObservableParticipation {
 
 	public boolean hasParticipated() {
 		return assessments.values().stream()
-				.filter(a -> a.participatedProperty().get() != null)
-				.anyMatch(a -> a.participatedProperty().get());
+				.anyMatch(a -> a.gradeProperty().get() != null);
 	}
 }

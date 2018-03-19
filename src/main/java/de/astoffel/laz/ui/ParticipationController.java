@@ -29,10 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
@@ -44,7 +42,6 @@ import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.StringConverter;
@@ -155,7 +152,7 @@ public class ParticipationController {
 	private void reloadData() {
 		Project project = application.projectProperty().get();
 		for (ExamColumns e : exams) {
-			table.getColumns().removeAll(e.gradeColumn, e.participatedColumn);
+			table.getColumns().removeAll(e.gradeColumn);
 		}
 		exams.clear();
 		if (project == null) {
@@ -171,7 +168,7 @@ public class ParticipationController {
 				grades.setAll(loadGrades(session));
 				exams.addAll(loadExams(session));
 				for (ExamColumns e : exams) {
-					table.getColumns().addAll(e.gradeColumn, e.participatedColumn);
+					table.getColumns().addAll(e.gradeColumn);
 				}
 				table.setDisable(false);
 				transaction.commit();
@@ -216,12 +213,10 @@ public class ParticipationController {
 
 		private final Exam exam;
 		private final TableColumn<ObservableParticipation, Grade> gradeColumn;
-		private final TableColumn<ObservableParticipation, Boolean> participatedColumn;
 
 		public ExamColumns(Exam exam) {
 			this.exam = exam;
 			this.gradeColumn = new TableColumn<>(exam.getName() + " - Note");
-			this.participatedColumn = new TableColumn<>(exam.getName() + " - Teilgenommen");
 			gradeColumn.setCellValueFactory(param -> {
 				return param.getValue().getAssessment(exam).gradeProperty();
 			});
@@ -239,12 +234,6 @@ public class ParticipationController {
 				}, grades);
 				return cell;
 			});
-			participatedColumn.setCellValueFactory(param -> {
-				BooleanProperty value = new SimpleBooleanProperty();
-				value.bindBidirectional(param.getValue().getAssessment(exam).participatedProperty());
-				return value;
-			});
-			participatedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(participatedColumn));
 		}
 
 	}

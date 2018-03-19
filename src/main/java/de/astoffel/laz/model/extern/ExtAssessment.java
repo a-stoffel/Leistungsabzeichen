@@ -30,8 +30,6 @@ public final class ExtAssessment {
 	private String exam;
 	@XmlAttribute(name = "grade")
 	private String grade;
-	@XmlAttribute(name = "participated")
-	private Boolean participated;
 
 	private ExtAssessment() {
 	}
@@ -41,7 +39,6 @@ public final class ExtAssessment {
 		if (assessment.getGrade() != null) {
 			this.grade = assessment.getGrade().getName();
 		}
-		this.participated = assessment.getParticipated();
 	}
 
 	public String getExam() {
@@ -50,10 +47,6 @@ public final class ExtAssessment {
 
 	public String getGrade() {
 		return grade;
-	}
-
-	public Boolean getParticipated() {
-		return participated;
 	}
 
 }

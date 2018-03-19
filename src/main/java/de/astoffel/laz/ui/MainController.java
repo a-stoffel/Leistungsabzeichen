@@ -251,6 +251,9 @@ public class MainController {
 			case SCHEDULED:
 				dialog.showAndWait();
 				break;
+			default:
+				// task already finished
+				break;
 		}
 	}
 

@@ -28,22 +28,22 @@ final class ObservableMeta {
 
 	private final Meta meta;
 	private final ObjectProperty<String> location;
-	private final ObjectProperty<String> when;
+	private final ObjectProperty<String> eventDate;
 
 	public ObservableMeta(DataModel model, Meta meta) {
 		this.meta = meta;
 		this.location = new UpdateObjectProperty<>(
 				model, meta, Meta::getLocation, Meta::setLocation);
-		this.when = new UpdateObjectProperty<>(
-				model, meta, Meta::getWhen, Meta::setWhen);
+		this.eventDate = new UpdateObjectProperty<>(
+				model, meta, Meta::getEventDate, Meta::setEventDate);
 	}
 
 	public ObjectProperty<String> locationProperty() {
 		return location;
 	}
 
-	public ObjectProperty<String> whenProperty() {
-		return when;
+	public ObjectProperty<String> eventDateProperty() {
+		return eventDate;
 	}
 
 }

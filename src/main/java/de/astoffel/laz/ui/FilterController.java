@@ -47,28 +47,28 @@ import org.hibernate.query.Query;
  * @author andreas
  */
 public final class FilterController {
-	
+
 	private static final Predicate<ObservableParticipation> PREDICATE_NONE = p -> true;
-	
+
 	@Inject
 	private ApplicationState application;
-	
+
 	private ChangeListener projectListener;
 	private ChangeListener selectionListener;
-	
+
 	private final ListProperty<SelectableEntity<Category>> categories = new SimpleListProperty(
 			FXCollections.observableArrayList());
 	private final ListProperty<SelectableEntity<Jury>> juries = new SimpleListProperty(
 			FXCollections.observableArrayList());
-	
+
 	private final ObjectProperty<Predicate<ObservableParticipation>> predicate
 			= new SimpleObjectProperty<>(PREDICATE_NONE);
-	
+
 	@FXML
 	private ListView<SelectableEntity<Category>> categoryFilter;
 	@FXML
 	private ListView<SelectableEntity<Jury>> juryFilter;
-	
+
 	@FXML
 	public void initialize() {
 		selectionListener = (source, oldValue, newValue) -> {
@@ -86,28 +86,28 @@ public final class FilterController {
 		};
 		application.projectProperty().addListener(new WeakChangeListener<>(projectListener));
 		projectListener.changed(application.projectProperty(), null, application.projectProperty().get());
-		
+
 		categoryFilter.setCellFactory(CheckBoxListCell.forListView(SelectableEntity::selectedProperty,
 				new StringConverter<SelectableEntity<Category>>() {
 			@Override
 			public String toString(SelectableEntity<Category> object) {
 				return object.getEntity().getName();
 			}
-			
+
 			@Override
 			public SelectableEntity<Category> fromString(String string) {
 				throw new UnsupportedOperationException();
 			}
 		}));
 		categoryFilter.itemsProperty().bind(categories);
-		
+
 		juryFilter.setCellFactory(CheckBoxListCell.forListView(SelectableEntity::selectedProperty,
 				new StringConverter<SelectableEntity<Jury>>() {
 			@Override
 			public String toString(SelectableEntity<Jury> object) {
 				return object.getEntity().getName();
 			}
-			
+
 			@Override
 			public SelectableEntity<Jury> fromString(String string) {
 				throw new UnsupportedOperationException();
@@ -115,7 +115,7 @@ public final class FilterController {
 		}));
 		juryFilter.itemsProperty().bind(juries);
 	}
-	
+
 	private void reloadData() {
 		Project project = application.projectProperty().get();
 		if (project == null) {
@@ -152,21 +152,21 @@ public final class FilterController {
 			}
 		}
 	}
-	
+
 	private static List<SelectableEntity<Category>> loadCategories(Session session) {
 		Query<Category> query = session.getNamedQuery("findAllCategories");
 		return query.list().stream()
 				.map(c -> new SelectableEntity<>(c, true))
 				.collect(Collectors.toList());
 	}
-	
+
 	private static List<SelectableEntity<Jury>> loadJuries(Session session) {
 		Query<Jury> query = session.getNamedQuery("findAllJuries");
 		return query.list().stream()
 				.map(j -> new SelectableEntity<>(j, true))
 				.collect(Collectors.toList());
 	}
-	
+
 	private void updatePredicate() {
 		if (categories.isEmpty() && juries.isEmpty()) {
 			predicate.set(PREDICATE_NONE);
@@ -186,8 +186,8 @@ public final class FilterController {
 					&& selectedJuries.contains(participation.getJury().getId());
 		});
 	}
-	
-	public ObservableValue<Predicate<ObservableParticipation>> predicateProperty() {
+
+	ObservableValue<Predicate<ObservableParticipation>> predicateProperty() {
 		return predicate;
 	}
 }

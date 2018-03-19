@@ -58,6 +58,8 @@ public class Meta implements Serializable {
 		return result;
 	}
 
+	private static final long serialVersionUID = 0L;
+
 	@Id
 	private long id;
 	@Version
@@ -69,16 +71,16 @@ public class Meta implements Serializable {
 
 	@Basic(optional = false)
 	@Column(nullable = false)
-	private String when;
+	private String eventDate;
 
 	protected Meta() {
 		this.id = 0;
 	}
 
-	public Meta(String location, String when) {
+	public Meta(String location, String eventDate) {
 		this.id = 0;
 		this.location = location;
-		this.when = when;
+		this.eventDate = eventDate;
 	}
 
 	public String getLocation() {
@@ -89,12 +91,12 @@ public class Meta implements Serializable {
 		this.location = location;
 	}
 
-	public String getWhen() {
-		return when;
+	public String getEventDate() {
+		return eventDate;
 	}
 
-	public void setWhen(String when) {
-		this.when = when;
+	public void setEventDate(String when) {
+		this.eventDate = when;
 	}
 
 }
