@@ -1,3 +1,5 @@
 language: java
 git:
     depth: false
+jdk:
+    - oraclejdk9
