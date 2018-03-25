@@ -10,10 +10,10 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath de.astoffel.laz.Main</exec.args>
+                <exec.args>-agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address} --add-modules java.xml.bind -classpath %classpath de.astoffel.laz.Main</exec.args>
                 <exec.executable>java</exec.executable>
                 <jpda.listen>true</jpda.listen>
-                <exec.workingdir>C:\Users\Andreas Stoffel\MyCloud\Spielring\Leistungsabzeichen\Leistungsabzeichen 2018\Workingspace</exec.workingdir>
+                <exec.workingdir>C:\Users\andreas\Documents\LeistungsabzeichenTest</exec.workingdir>
             </properties>
         </action>
         <action>
@@ -26,9 +26,9 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-classpath %classpath de.astoffel.laz.Main</exec.args>
+                <exec.args>--add-modules java.xml.bind -classpath %classpath de.astoffel.laz.Main</exec.args>
                 <exec.executable>java</exec.executable>
-                <exec.workingdir>C:\Users\Andreas Stoffel\MyCloud\Spielring\Leistungsabzeichen\Leistungsabzeichen 2018\Workingspace</exec.workingdir>
+                <exec.workingdir>C:\Users\andreas\Documents\LeistungsabzeichenTest</exec.workingdir>
             </properties>
         </action>
         <action>
@@ -41,9 +41,9 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-classpath %classpath ${packageClassName}</exec.args>
+                <exec.args>--add-modules java.xml.bind -classpath %classpath de.astoffel.laz.Main</exec.args>
                 <exec.executable>java</exec.executable>
-                <exec.workingdir>C:\Users\Andreas Stoffel\MyCloud\Spielring\Leistungsabzeichen\Leistungsabzeichen 2018\Workingspace</exec.workingdir>
+                <exec.workingdir>C:\Users\andreas\Documents\LeistungsabzeichenTest</exec.workingdir>
             </properties>
         </action>
     </actions>

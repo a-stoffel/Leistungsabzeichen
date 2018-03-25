@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl;
@@ -32,6 +33,17 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
  * @author andreas
  */
 public final class DataModel implements AutoCloseable {
+
+	@FunctionalInterface
+	public static interface AtomicThrowsTx<E extends Exception> {
+
+		public void atomic(DataSession session) throws E;
+	}
+
+	@FunctionalInterface
+	public static interface AtomicTx extends AtomicThrowsTx<RuntimeException> {
+
+	}
 
 	private final SessionFactory sessionFactory;
 
@@ -83,7 +95,23 @@ public final class DataModel implements AutoCloseable {
 		this.sessionFactory.close();
 	}
 
-	public Session getSession() {
-		return sessionFactory.getCurrentSession();
+	public DataSession getSession() {
+		return new DataSession(sessionFactory.getCurrentSession());
+	}
+
+	public void atomic(AtomicTx atomic) {
+		atomicThrows(atomic);
+	}
+
+	public <E extends Exception> void atomicThrows(AtomicThrowsTx<E> atomic) throws E {
+		Session session = sessionFactory.getCurrentSession();
+		Transaction transaction = session.beginTransaction();
+		try {
+			atomic.atomic(new DataSession(session));
+			transaction.commit();
+		} catch (Throwable th) {
+			transaction.rollback();
+			throw th;
+		}
 	}
 }

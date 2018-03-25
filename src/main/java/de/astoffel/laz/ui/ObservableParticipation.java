@@ -49,9 +49,9 @@ final class ObservableParticipation {
 				Participant::getName,
 				Participant::setName
 		);
-		this.category = new ReadOnlyObjectWrapper(participation.getCategory());
-		this.instrument = new ReadOnlyObjectWrapper(participation.getInstrument());
-		this.jury = new ReadOnlyObjectWrapper(participation.getJury());
+		this.category = new ReadOnlyObjectWrapper<>(participation.getCategory());
+		this.instrument = new ReadOnlyObjectWrapper<>(participation.getInstrument());
+		this.jury = new ReadOnlyObjectWrapper<>(participation.getJury());
 		this.assessments = participation.getAssessments().entrySet().stream()
 				.collect(Collectors.toMap(
 						Map.Entry::getKey,

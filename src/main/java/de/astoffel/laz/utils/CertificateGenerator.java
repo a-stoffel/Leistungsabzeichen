@@ -18,6 +18,7 @@ package de.astoffel.laz.utils;
 
 import de.astoffel.laz.Project;
 import de.astoffel.laz.model.DataModel;
+import de.astoffel.laz.model.DataSession;
 import de.astoffel.laz.model.Exam;
 import de.astoffel.laz.model.Meta;
 import de.astoffel.laz.model.Participation;
@@ -39,8 +40,6 @@ import java.util.zip.ZipInputStream;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
 /**
@@ -53,9 +52,7 @@ public abstract class CertificateGenerator {
 
 	public static void generate(Project project, Path templateFile, List<Participation> participations, DataModel model) {
 		try {
-			Session session = model.getSession();
-			Transaction transaction = session.beginTransaction();
-			try {
+			model.atomicThrows(session -> {				
 				Path texDirectory = project.getPrefix().resolve("latex");
 				Path certiciateTemplateFile = texDirectory.resolve("template.vtl");
 				Path latexFile = texDirectory.resolve("Urkunden.tex");
@@ -70,11 +67,7 @@ public abstract class CertificateGenerator {
 						Meta.getInstance(session), participations, listExams(session));
 				createPdf(latexFile);
 				openResult(pdfFile);
-				transaction.commit();
-			} catch (Throwable th) {
-				transaction.rollback();
-				throw th;
-			}
+			});
 		} catch (IOException ex) {
 			LOG.log(Level.SEVERE, "Creating certificates failed", ex);
 		}
@@ -100,13 +93,13 @@ public abstract class CertificateGenerator {
 		});
 	}
 
-	private static List<Exam> listExams(Session session) {
+	private static List<Exam> listExams(DataSession session) {
 		Query<Exam> exams = session.getNamedQuery("findAllExams");
 		return exams.list();
 	}
 
 	private static void copyResources(Path templateFile, Path texDirectory) throws IOException {
-		try (ZipInputStream stream = new ZipInputStream(Files.newInputStream(templateFile))) {
+		try ( ZipInputStream stream = new ZipInputStream(Files.newInputStream(templateFile))) {
 			ZipEntry entry;
 			while ((entry = stream.getNextEntry()) != null) {
 				Path target = texDirectory.resolve(entry.getName());
@@ -127,7 +120,7 @@ public abstract class CertificateGenerator {
 		context.put("meta", meta);
 		context.put("participations", participations);
 		context.put("exams", exams);
-		try (Writer writer = new OutputStreamWriter(Files.newOutputStream(latexFile), StandardCharsets.UTF_8)) {
+		try ( Writer writer = new OutputStreamWriter(Files.newOutputStream(latexFile), StandardCharsets.UTF_8)) {
 			template.merge(context, writer);
 		}
 	}

@@ -19,6 +19,7 @@ package de.astoffel.laz.utils;
 import de.astoffel.laz.model.Assessment;
 import de.astoffel.laz.model.Category;
 import de.astoffel.laz.model.DataModel;
+import de.astoffel.laz.model.DataSession;
 import de.astoffel.laz.model.Exam;
 import de.astoffel.laz.model.Grade;
 import de.astoffel.laz.model.Instrument;
@@ -45,8 +46,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.xml.bind.JAXB;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
 /**
@@ -56,16 +55,14 @@ import org.hibernate.query.Query;
 public abstract class ImportDatabase {
 
 	public static void importDatabase(DataModel model, Path path) throws IOException {
-		try (Reader reader = new InputStreamReader(
+		try ( Reader reader = new InputStreamReader(
 				Files.newInputStream(path), StandardCharsets.UTF_8)) {
 			importDatabase(model, reader);
 		}
 	}
 
 	public static void importDatabase(DataModel model, Reader reader) throws IOException {
-		Session session = model.getSession();
-		Transaction transaction = session.beginTransaction();
-		try {
+		model.atomic(session -> {
 			clearDatabase(session);
 			ExtData data = JAXB.unmarshal(reader, ExtData.class);
 			importMeta(session, data);
@@ -75,14 +72,10 @@ public abstract class ImportDatabase {
 			importExams(session, data.getExams());
 			importJuries(session, data.getJuries());
 			importParticipants(session, data.getParticipants());
-			transaction.commit();
-		} catch (Throwable th) {
-			transaction.rollback();
-			throw th;
-		}
+		});
 	}
 
-	private static void clearDatabase(Session session) {
+	private static void clearDatabase(DataSession session) {
 		session.getNamedQuery("deleteParticipations").executeUpdate();
 		session.getNamedQuery("deleteParticipants").executeUpdate();
 		session.getNamedQuery("deleteJuries").executeUpdate();
@@ -93,29 +86,29 @@ public abstract class ImportDatabase {
 		session.getNamedQuery("deleteMetas").executeUpdate();
 	}
 
-	private static void importMeta(Session session, ExtData data) {
+	private static void importMeta(DataSession session, ExtData data) {
 		session.persist(new Meta(data.getLocation(), data.getWhen()));
 	}
 
-	private static void importGrades(Session session, List<ExtGrade> grades) {
+	private static void importGrades(DataSession session, List<ExtGrade> grades) {
 		for (ExtGrade g : grades) {
 			session.persist(new Grade(g.getName(), g.getDisplayName()));
 		}
 	}
 
-	private static void importInstruments(Session session, List<ExtInstrument> instruments) {
+	private static void importInstruments(DataSession session, List<ExtInstrument> instruments) {
 		for (ExtInstrument i : instruments) {
 			session.persist(new Instrument(i.getName(), i.getDisplayName()));
 		}
 	}
 
-	private static void importCategories(Session session, List<ExtCategory> categories) {
+	private static void importCategories(DataSession session, List<ExtCategory> categories) {
 		for (ExtCategory c : categories) {
 			session.persist(new Category(c.getName(), c.getDisplayName()));
 		}
 	}
 
-	private static void importExams(Session session, List<ExtExam> exams) {
+	private static void importExams(DataSession session, List<ExtExam> exams) {
 		Query<Category> category = session.getNamedQuery("findCategory");
 		for (ExtExam e : exams) {
 			Map<Category, String> descriptions = new HashMap<>();
@@ -128,17 +121,17 @@ public abstract class ImportDatabase {
 		}
 	}
 
-	private static void importJuries(Session session, List<ExtJury> juries) {
+	private static void importJuries(DataSession session, List<ExtJury> juries) {
 		for (ExtJury j : juries) {
 			session.persist(new Jury(j.getName()));
 		}
 	}
 
-	private static void importParticipants(Session session, List<ExtParticipant> participants) {
+	private static void importParticipants(DataSession session, List<ExtParticipant> participants) {
 		Query<Category> category = session.getNamedQuery("findCategory");
 		Query<Instrument> instrument = session.getNamedQuery("findInstrument");
 		Query<Jury> jury = session.getNamedQuery("findJury");
-		List<Exam> exams = session.getNamedQuery("findAllExams").list();
+		List<Exam> exams = session.<Exam>getNamedQuery("findAllExams").list();
 		Query<Exam> exam = session.getNamedQuery("findExam");
 		Query<Grade> grade = session.getNamedQuery("findGrade");
 		for (ExtParticipant p : participants) {

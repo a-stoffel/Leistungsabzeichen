@@ -20,6 +20,7 @@ import de.astoffel.laz.ApplicationState;
 import de.astoffel.laz.Project;
 import de.astoffel.laz.model.Category;
 import de.astoffel.laz.model.DataModel;
+import de.astoffel.laz.model.DataSession;
 import de.astoffel.laz.model.Exam;
 import de.astoffel.laz.model.Grade;
 import de.astoffel.laz.model.Instrument;
@@ -47,8 +48,6 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
 import javax.inject.Inject;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
 /**
@@ -138,11 +137,11 @@ public class ParticipationController {
 		juryColumn.setCellFactory(param -> {
 			return new TextFieldTableCell<>(new JuryConverter());
 		});
-		
-		filteredParticipations.sort((a,b) -> {
+
+		filteredParticipations.sort((a, b) -> {
 			return a.getParticipant().get().compareTo(b.getParticipant().get());
 		});
-		
+
 		SortedList<ObservableParticipation> sortedParticipations = new SortedList<>(filteredParticipations);
 		sortedParticipations.comparatorProperty().bind(table.comparatorProperty());
 
@@ -152,7 +151,7 @@ public class ParticipationController {
 	private void reloadData() {
 		Project project = application.projectProperty().get();
 		for (ExamColumns e : exams) {
-			table.getColumns().removeAll(e.gradeColumn);
+			table.getColumns().remove(e.gradeColumn);
 		}
 		exams.clear();
 		if (project == null) {
@@ -161,32 +160,26 @@ public class ParticipationController {
 			table.setDisable(true);
 		} else {
 			DataModel model = project.getModel();
-			Session session = model.getSession();
-			Transaction transaction = session.beginTransaction();
-			try {
+			model.atomic(session -> {
 				participations.setAll(loadParticipations(model, session));
 				grades.setAll(loadGrades(session));
 				exams.addAll(loadExams(session));
 				for (ExamColumns e : exams) {
-					table.getColumns().addAll(e.gradeColumn);
+					table.getColumns().add(e.gradeColumn);
 				}
 				table.setDisable(false);
-				transaction.commit();
-			} catch (Throwable th) {
-				transaction.rollback();
-				throw th;
-			}
+			});
 		}
 	}
 
-	private static List<ObservableParticipation> loadParticipations(DataModel model, Session session) {
+	private static List<ObservableParticipation> loadParticipations(DataModel model, DataSession session) {
 		Query<Participation> query = session.getNamedQuery("findAllParticipations");
 		return query.stream()
 				.map(p -> new ObservableParticipation(model, p))
 				.collect(Collectors.toList());
 	}
 
-	private static List<Grade> loadGrades(Session session) {
+	private static List<Grade> loadGrades(DataSession session) {
 		Query<Grade> query = session.getNamedQuery("findAllGrades");
 		List<Grade> result = new ArrayList<>();
 		result.add(null);
@@ -194,7 +187,7 @@ public class ParticipationController {
 		return result;
 	}
 
-	private List<ExamColumns> loadExams(Session session) {
+	private List<ExamColumns> loadExams(DataSession session) {
 		Query<Exam> query = session.getNamedQuery("findAllExams");
 		return query.stream()
 				.map(ExamColumns::new)
@@ -221,7 +214,7 @@ public class ParticipationController {
 				return param.getValue().getAssessment(exam).gradeProperty();
 			});
 			gradeColumn.setCellFactory(param -> {
-				ComboBoxTableCell cell = new ComboBoxTableCell<>(new StringConverter<Grade>() {
+				ComboBoxTableCell<ObservableParticipation, Grade> cell = new ComboBoxTableCell<>(new StringConverter<Grade>() {
 					@Override
 					public String toString(Grade object) {
 						return object == null ? "" : object.getName();

@@ -36,6 +36,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		<Label text="Ort" GridPane.halignment="RIGHT" />
 		<Label text="Datum" GridPane.columnIndex="2" GridPane.halignment="RIGHT" />
 		<TextField fx:id="locationTextField" GridPane.columnIndex="1" />
-		<TextField fx:id="whenTextField" GridPane.columnIndex="3" />
+		<TextField fx:id="eventDateTextField" GridPane.columnIndex="3" />
 	</children>
 </GridPane>

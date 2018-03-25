@@ -19,6 +19,7 @@ package de.astoffel.laz.ui;
 import de.astoffel.laz.ApplicationState;
 import de.astoffel.laz.Project;
 import de.astoffel.laz.model.Category;
+import de.astoffel.laz.model.DataSession;
 import de.astoffel.laz.model.Jury;
 import de.astoffel.laz.model.Participation;
 import java.util.List;
@@ -38,8 +39,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.util.StringConverter;
 import javax.inject.Inject;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
 /**
@@ -53,12 +52,12 @@ public final class FilterController {
 	@Inject
 	private ApplicationState application;
 
-	private ChangeListener projectListener;
-	private ChangeListener selectionListener;
+	private ChangeListener<Project> projectListener;
+	private ChangeListener<Boolean> selectionListener;
 
-	private final ListProperty<SelectableEntity<Category>> categories = new SimpleListProperty(
+	private final ListProperty<SelectableEntity<Category>> categories = new SimpleListProperty<>(
 			FXCollections.observableArrayList());
-	private final ListProperty<SelectableEntity<Jury>> juries = new SimpleListProperty(
+	private final ListProperty<SelectableEntity<Jury>> juries = new SimpleListProperty<>(
 			FXCollections.observableArrayList());
 
 	private final ObjectProperty<Predicate<ObservableParticipation>> predicate
@@ -131,9 +130,7 @@ public final class FilterController {
 			categoryFilter.setDisable(true);
 			juryFilter.setDisable(true);
 		} else {
-			Session session = project.getModel().getSession();
-			Transaction transaction = session.beginTransaction();
-			try {
+			project.getModel().atomic(session -> {
 				categories.setAll(loadCategories(session));
 				for (SelectableEntity<Category> c : categories) {
 					c.selectedProperty().addListener(selectionListener);
@@ -145,22 +142,18 @@ public final class FilterController {
 				updatePredicate();
 				categoryFilter.setDisable(false);
 				juryFilter.setDisable(false);
-				transaction.commit();
-			} catch (Throwable th) {
-				transaction.rollback();
-				throw th;
-			}
+			});
 		}
 	}
 
-	private static List<SelectableEntity<Category>> loadCategories(Session session) {
+	private static List<SelectableEntity<Category>> loadCategories(DataSession session) {
 		Query<Category> query = session.getNamedQuery("findAllCategories");
 		return query.list().stream()
 				.map(c -> new SelectableEntity<>(c, true))
 				.collect(Collectors.toList());
 	}
 
-	private static List<SelectableEntity<Jury>> loadJuries(Session session) {
+	private static List<SelectableEntity<Jury>> loadJuries(DataSession session) {
 		Query<Jury> query = session.getNamedQuery("findAllJuries");
 		return query.list().stream()
 				.map(j -> new SelectableEntity<>(j, true))

@@ -25,8 +25,6 @@ import javafx.beans.value.WeakChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javax.inject.Inject;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 /**
  *
@@ -74,19 +72,13 @@ public class MetaController {
 			eventDateTextField.setDisable(true);
 		} else {
 			DataModel model = project.getModel();
-			Session session = model.getSession();
-			Transaction transaction = session.beginTransaction();
-			try {
+			model.atomic(session -> {
 				meta = new ObservableMeta(model, Meta.getInstance(session));
-				locationTextField.textProperty().bindBidirectional(meta.locationProperty());
-				eventDateTextField.textProperty().bindBidirectional(meta.eventDateProperty());
-				locationTextField.setDisable(false);
-				eventDateTextField.setDisable(false);
-				transaction.commit();
-			} catch (Throwable th) {
-				transaction.rollback();
-				throw th;
-			}
+			});
+			locationTextField.textProperty().bindBidirectional(meta.locationProperty());
+			eventDateTextField.textProperty().bindBidirectional(meta.eventDateProperty());
+			locationTextField.setDisable(false);
+			eventDateTextField.setDisable(false);
 		}
 	}
 }

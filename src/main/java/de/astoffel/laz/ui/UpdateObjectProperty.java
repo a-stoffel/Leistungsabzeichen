@@ -20,8 +20,6 @@ import de.astoffel.laz.model.DataModel;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import javafx.beans.property.ObjectPropertyBase;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 
 /**
  *
@@ -61,26 +59,22 @@ final class UpdateObjectProperty<O, T> extends ObjectPropertyBase<T> {
 	@Override
 	public void set(T newValue) {
 		super.set(newValue);
-		Session session = model.getSession();
-		Transaction transaction = session.beginTransaction();
 		try {
 			setter.accept(object, newValue);
-			session.update(object);
-			transaction.commit();
+			model.atomic(session -> {
+				session.update(object);
+			});
 		} catch (Throwable th) {
-			transaction.rollback();
 			try {
-				transaction = session.beginTransaction();
-				try {
+				model.atomic(session -> {
 					session.refresh(object);
-					super.set(getter.apply(object));
-				} finally {
-					transaction.rollback();
-				}
+				});
+				super.set(getter.apply(object));
 			} catch (Throwable inner) {
 				th.addSuppressed(inner);
 			}
-		}		
+			throw th;
+		}
 	}
 
 }

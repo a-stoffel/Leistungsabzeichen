@@ -16,7 +16,13 @@
  */
 package de.astoffel.laz.utils;
 
+import de.astoffel.laz.model.Category;
 import de.astoffel.laz.model.DataModel;
+import de.astoffel.laz.model.DataSession;
+import de.astoffel.laz.model.Exam;
+import de.astoffel.laz.model.Grade;
+import de.astoffel.laz.model.Instrument;
+import de.astoffel.laz.model.Jury;
 import de.astoffel.laz.model.Meta;
 import de.astoffel.laz.model.Participant;
 import de.astoffel.laz.model.Participation;
@@ -31,8 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.xml.bind.JAXB;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
 /**
@@ -42,38 +46,32 @@ import org.hibernate.query.Query;
 public abstract class ExportDatabase {
 
 	public static void exportDatabase(DataModel model, Path path) throws IOException {
-		try (Writer writer = new OutputStreamWriter(Files.newOutputStream(path), StandardCharsets.UTF_8)) {
+		try ( Writer writer = new OutputStreamWriter(Files.newOutputStream(path), StandardCharsets.UTF_8)) {
 			exportDatabase(model, writer);
 		}
 	}
 
 	public static void exportDatabase(DataModel model, Writer writer) throws IOException {
-		Session session = model.getSession();
-		Transaction transaction = session.beginTransaction();
-		try {
+		model.atomic(session -> {
 			ExtData data = exportData(session);
 			JAXB.marshal(data, writer);
-			transaction.commit();
-		} catch (Throwable th) {
-			transaction.rollback();
-			throw th;
-		}
+		});
 	}
 
-	private static ExtData exportData(Session session) {
+	private static ExtData exportData(DataSession session) {
 		Query<Meta> query = session.getNamedQuery("findMeta");
 		Meta meta = query.uniqueResult();
 		return new ExtData(meta,
-				session.getNamedQuery("findAllGrades").list(),
-				session.getNamedQuery("findAllInstruments").list(),
-				session.getNamedQuery("findAllJuries").list(),
-				session.getNamedQuery("findAllCategories").list(),
-				session.getNamedQuery("findAllExams").list(),
+				session.<Grade>getNamedQuery("findAllGrades").list(),
+				session.<Instrument>getNamedQuery("findAllInstruments").list(),
+				session.<Jury>getNamedQuery("findAllJuries").list(),
+				session.<Category>getNamedQuery("findAllCategories").list(),
+				session.<Exam>getNamedQuery("findAllExams").list(),
 				exportParticipants(session)
 		);
 	}
 
-	private static Map<Participant, List<Participation>> exportParticipants(Session session) {
+	private static Map<Participant, List<Participation>> exportParticipants(DataSession session) {
 		Map<Participant, List<Participation>> result = new HashMap<>();
 		Query<Participant> participants = session.getNamedQuery("findAllParticipants");
 		Query<Participation> participation = session.getNamedQuery("findParticipations");

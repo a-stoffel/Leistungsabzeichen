@@ -26,7 +26,6 @@ import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Version;
-import org.hibernate.Session;
 import org.hibernate.query.Query;
 
 /**
@@ -48,7 +47,7 @@ import org.hibernate.query.Query;
 })
 public class Meta implements Serializable {
 	
-	public static Meta getInstance(Session session) {
+	public static Meta getInstance(DataSession session) {
 		Query<Meta> query = session.getNamedQuery("findMeta");
 		Meta result = query.uniqueResult();
 		if (result == null) {
