@@ -27,11 +27,9 @@ import javafx.beans.property.ObjectProperty;
  */
 final class ObservableAssessment {
 
-	private final Assessment assessment;
 	private final ObjectProperty<Grade> grade;
 
 	public ObservableAssessment(DataModel model, Assessment assessment) {
-		this.assessment = assessment;
 		this.grade = new UpdateObjectProperty<>(
 				model, assessment, Assessment::getGrade, Assessment::setGrade);
 	}

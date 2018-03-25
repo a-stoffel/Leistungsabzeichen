@@ -204,11 +204,9 @@ public class ParticipationController {
 
 	private final class ExamColumns {
 
-		private final Exam exam;
 		private final TableColumn<ObservableParticipation, Grade> gradeColumn;
 
 		public ExamColumns(Exam exam) {
-			this.exam = exam;
 			this.gradeColumn = new TableColumn<>(exam.getName() + " - Note");
 			gradeColumn.setCellValueFactory(param -> {
 				return param.getValue().getAssessment(exam).gradeProperty();

@@ -26,12 +26,10 @@ import javafx.beans.property.ObjectProperty;
  */
 final class ObservableMeta {
 
-	private final Meta meta;
 	private final ObjectProperty<String> location;
 	private final ObjectProperty<String> eventDate;
 
 	public ObservableMeta(DataModel model, Meta meta) {
-		this.meta = meta;
 		this.location = new UpdateObjectProperty<>(
 				model, meta, Meta::getLocation, Meta::setLocation);
 		this.eventDate = new UpdateObjectProperty<>(

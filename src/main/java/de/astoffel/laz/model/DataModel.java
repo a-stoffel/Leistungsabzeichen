@@ -16,7 +16,6 @@
  */
 package de.astoffel.laz.model;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 import org.hibernate.Session;
@@ -25,6 +24,7 @@ import org.hibernate.Transaction;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl;
+import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
@@ -60,26 +60,18 @@ public final class DataModel implements AutoCloseable {
 	}
 
 	private static SessionFactory open(Optional<Path> prefix) {
-		StandardServiceRegistryBuilder registryBuilder = new StandardServiceRegistryBuilder()
-				.configure("de/astoffel/laz/hibernate.cfg.xml");
+		BootstrapServiceRegistryBuilder bootstrapRegistryBuilder
+				= new BootstrapServiceRegistryBuilder()
+						.applyIntegrator(new FlywayIntegrator());
+		StandardServiceRegistryBuilder registryBuilder
+				= new StandardServiceRegistryBuilder(bootstrapRegistryBuilder.build())
+						.configure("de/astoffel/laz/hibernate.cfg.xml");
 		if (prefix.isPresent()) {
 			registryBuilder.applySetting("hibernate.connection.url", String.format("jdbc:h2:%s/database", prefix.get()));
-			if (Files.exists(prefix.get().resolve("database.mv.db"))) {
-				registryBuilder.applySetting("hibernate.hbm2ddl.auto", "update");
-			}
 		}
 		StandardServiceRegistry standardRegistry = registryBuilder.build();
 
 		Metadata metadata = new MetadataSources(standardRegistry)
-				.addAnnotatedClass(Assessment.class)
-				.addAnnotatedClass(Category.class)
-				.addAnnotatedClass(Exam.class)
-				.addAnnotatedClass(Grade.class)
-				.addAnnotatedClass(Instrument.class)
-				.addAnnotatedClass(Jury.class)
-				.addAnnotatedClass(Meta.class)
-				.addAnnotatedClass(Participant.class)
-				.addAnnotatedClass(Participation.class)
 				.getMetadataBuilder()
 				.applyImplicitNamingStrategy(ImplicitNamingStrategyJpaCompliantImpl.INSTANCE)
 				.build();

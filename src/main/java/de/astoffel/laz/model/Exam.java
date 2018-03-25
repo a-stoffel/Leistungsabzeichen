@@ -30,6 +30,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.MapKeyJoinColumn;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Version;
@@ -83,8 +85,10 @@ public class Exam implements Serializable {
 	private String displayShortName;
 
 	@ElementCollection
-	@JoinColumn(nullable = false)
-	@Column(nullable = false, length = 4096)
+	@JoinTable(name = "Exam_Description")
+	@JoinColumn(name = "exam_id", nullable = false)
+	@MapKeyJoinColumn(name = "category_id", nullable = false)
+	@Column(name = "description", nullable = false, length = 4096)
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private Map<Category, String> descriptions;
 
@@ -119,10 +123,7 @@ public class Exam implements Serializable {
 			return false;
 		}
 		final Exam other = (Exam) obj;
-		if (!Objects.equals(this.id, other.id)) {
-			return false;
-		}
-		return true;
+		return Objects.equals(this.id, other.id);
 	}
 
 	public Integer getSort() {

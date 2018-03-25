@@ -28,15 +28,15 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapKeyJoinColumn;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.persistence.Version;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 /**
  *
@@ -80,27 +80,26 @@ public class Participation implements Serializable {
 
 	@ManyToOne
 	@JoinColumn(nullable = false)
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	private Participant participant;
 
 	@ManyToOne
 	@JoinColumn(nullable = false)
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	private Category category;
 
 	@ManyToOne
 	@JoinColumn(nullable = false)
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	private Instrument instrument;
 
 	@ManyToOne
 	@JoinColumn(nullable = false)
-	@OnDelete(action = OnDeleteAction.CASCADE)
 	private Jury jury;
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(nullable = false)
-	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JoinTable(
+			joinColumns = @JoinColumn(name = "participation_id", nullable = false),
+			inverseJoinColumns = @JoinColumn(name = "assessment_id", nullable = false)
+	)
+	@MapKeyJoinColumn(name = "exam_id", nullable = false)
 	private Map<Exam, Assessment> assessments;
 
 	protected Participation() {

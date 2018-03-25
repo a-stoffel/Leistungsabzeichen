@@ -47,11 +47,11 @@ import javax.persistence.Version;
 			name = "findCategory",
 			query = "from Category c where c.name = :category"
 	),
-	 @NamedQuery(
+	@NamedQuery(
 			name = "findAllCategories",
 			query = "from Category c"
 	),
-	 @NamedQuery(
+	@NamedQuery(
 			name = "deleteCategories",
 			query = "delete from Category c"
 	)
@@ -102,10 +102,7 @@ public class Category implements Serializable {
 			return false;
 		}
 		final Category other = (Category) obj;
-		if (!Objects.equals(this.id, other.id)) {
-			return false;
-		}
-		return true;
+		return Objects.equals(this.id, other.id);
 	}
 
 	public Long getId() {
