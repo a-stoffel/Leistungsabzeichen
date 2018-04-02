@@ -52,38 +52,38 @@ import org.hibernate.query.Query;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 public class ParticipationController {
 
 	@Inject
 	private ApplicationState application;
 
-	private final ListProperty<ObservableParticipation> participations
+	private final ListProperty<LiveParticipation> participations
 			= new SimpleListProperty<>(FXCollections.observableArrayList());
 	private final ListProperty<Grade> grades
 			= new SimpleListProperty<>(FXCollections.observableArrayList());
 
-	private final ObjectProperty<Predicate<ObservableParticipation>> predicate
+	private final ObjectProperty<Predicate<LiveParticipation>> predicate
 			= new SimpleObjectProperty<>();
 
 	private final List<ExamColumns> exams = new ArrayList<>();
 
-	private FilteredList<ObservableParticipation> filteredParticipations;
+	private FilteredList<LiveParticipation> filteredParticipations;
 
 	private ChangeListener<Project> projectListener;
 
 	@FXML
-	private TableView<ObservableParticipation> table;
+	private TableView<LiveParticipation> table;
 
 	@FXML
-	private TableColumn<ObservableParticipation, String> participantColumn;
+	private TableColumn<LiveParticipation, String> participantColumn;
 	@FXML
-	private TableColumn<ObservableParticipation, Category> categoryColumn;
+	private TableColumn<LiveParticipation, Category> categoryColumn;
 	@FXML
-	private TableColumn<ObservableParticipation, Instrument> instrumentColumn;
+	private TableColumn<LiveParticipation, Instrument> instrumentColumn;
 	@FXML
-	private TableColumn<ObservableParticipation, Jury> juryColumn;
+	private TableColumn<LiveParticipation, Jury> juryColumn;
 
 	@FXML
 	public void initialize() {
@@ -142,7 +142,7 @@ public class ParticipationController {
 			return a.getParticipant().get().compareTo(b.getParticipant().get());
 		});
 
-		SortedList<ObservableParticipation> sortedParticipations = new SortedList<>(filteredParticipations);
+		SortedList<LiveParticipation> sortedParticipations = new SortedList<>(filteredParticipations);
 		sortedParticipations.comparatorProperty().bind(table.comparatorProperty());
 
 		table.setItems(sortedParticipations);
@@ -172,10 +172,10 @@ public class ParticipationController {
 		}
 	}
 
-	private static List<ObservableParticipation> loadParticipations(DataModel model, DataSession session) {
+	private static List<LiveParticipation> loadParticipations(DataModel model, DataSession session) {
 		Query<Participation> query = session.getNamedQuery("findAllParticipations");
 		return query.stream()
-				.map(p -> new ObservableParticipation(model, p))
+				.map(p -> new LiveParticipation(model, p))
 				.collect(Collectors.toList());
 	}
 
@@ -194,17 +194,17 @@ public class ParticipationController {
 				.collect(Collectors.toList());
 	}
 
-	ObjectProperty<Predicate<ObservableParticipation>> predicateProperty() {
+	ObjectProperty<Predicate<LiveParticipation>> predicateProperty() {
 		return predicate;
 	}
 
-	ObservableList<ObservableParticipation> participationsProperty() {
+	ObservableList<LiveParticipation> participationsProperty() {
 		return filteredParticipations;
 	}
 
 	private final class ExamColumns {
 
-		private final TableColumn<ObservableParticipation, Grade> gradeColumn;
+		private final TableColumn<LiveParticipation, Grade> gradeColumn;
 
 		public ExamColumns(Exam exam) {
 			this.gradeColumn = new TableColumn<>(exam.getName() + " - Note");
@@ -212,7 +212,7 @@ public class ParticipationController {
 				return param.getValue().getAssessment(exam).gradeProperty();
 			});
 			gradeColumn.setCellFactory(param -> {
-				ComboBoxTableCell<ObservableParticipation, Grade> cell = new ComboBoxTableCell<>(new StringConverter<Grade>() {
+				ComboBoxTableCell<LiveParticipation, Grade> cell = new ComboBoxTableCell<>(new StringConverter<Grade>() {
 					@Override
 					public String toString(Grade object) {
 						return object == null ? "" : object.getName();

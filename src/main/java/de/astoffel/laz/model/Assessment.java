@@ -28,7 +28,7 @@ import javax.persistence.Version;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 @Entity
 @Access(AccessType.FIELD)

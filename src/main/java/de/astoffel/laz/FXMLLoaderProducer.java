@@ -24,14 +24,14 @@ import javax.inject.Inject;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 public class FXMLLoaderProducer {
 
 	@Inject
 	private Instance<Object> instance;
 
-	@Produces
+	@Produces 
 	public FXMLLoader produceFXMLLoader() {
 		return new FXMLLoader(null, null, new JavaFXBuilderFactory(), (param) -> {
 			return instance.select(param).get();			

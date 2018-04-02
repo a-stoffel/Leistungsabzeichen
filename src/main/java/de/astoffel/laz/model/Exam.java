@@ -40,14 +40,14 @@ import org.hibernate.annotations.OnDeleteAction;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 @Entity
 @Access(AccessType.FIELD)
 @NamedQueries({
 	@NamedQuery(
-			name = "findExam",
-			query = "from Exam e where e.name = :exam"
+			name = "findExamByName",
+			query = "from Exam e where e.name = :name"
 	),
 	@NamedQuery(
 			name = "findAllExams",
@@ -134,12 +134,24 @@ public class Exam implements Serializable {
 		return name;
 	}
 
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public String getDisplayName() {
 		return displayName;
 	}
 
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
+	}
+
 	public String getDisplayShortName() {
 		return displayShortName;
+	}
+
+	public void setDisplayShortName(String displayShortName) {
+		this.displayShortName = displayShortName;
 	}
 
 	public Map<Category, String> getDescriptions() {

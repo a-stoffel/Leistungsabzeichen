@@ -31,20 +31,20 @@ import javafx.beans.value.ObservableValue;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
-final class ObservableParticipation {
+final class LiveParticipation {
 
 	private final Participation participation;
 	private final ObjectProperty<String> participant;
 	private final ObjectProperty<Category> category;
 	private final ObjectProperty<Instrument> instrument;
 	private final ObjectProperty<Jury> jury;
-	private final Map<Exam, ObservableAssessment> assessments;
+	private final Map<Exam, LiveAssessment> assessments;
 
-	public ObservableParticipation(DataModel model, Participation participation) {
+	public LiveParticipation(DataModel model, Participation participation) {
 		this.participation = participation;
-		this.participant = new UpdateObjectProperty<>(
+		this.participant = new LiveObjectProperty<>(
 				model, participation.getParticipant(),
 				Participant::getName,
 				Participant::setName
@@ -55,7 +55,7 @@ final class ObservableParticipation {
 		this.assessments = participation.getAssessments().entrySet().stream()
 				.collect(Collectors.toMap(
 						Map.Entry::getKey,
-						e -> new ObservableAssessment(model, e.getValue())));
+						e -> new LiveAssessment(model, e.getValue())));
 	}
 
 	public Participation getParticipation() {
@@ -78,7 +78,7 @@ final class ObservableParticipation {
 		return jury;
 	}
 
-	public ObservableAssessment getAssessment(Exam exam) {
+	public LiveAssessment getAssessment(Exam exam) {
 		return assessments.get(exam);
 	}
 

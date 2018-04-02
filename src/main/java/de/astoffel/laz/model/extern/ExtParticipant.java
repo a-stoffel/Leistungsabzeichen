@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.XmlElement;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 public final class ExtParticipant {
 

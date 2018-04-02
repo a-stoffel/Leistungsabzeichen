@@ -21,7 +21,7 @@ import javafx.util.StringConverter;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 final class CategoryConverter extends StringConverter<Category> {
 	

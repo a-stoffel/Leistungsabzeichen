@@ -32,7 +32,7 @@ import javax.persistence.Version;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 @Entity
 @Access(AccessType.FIELD)
@@ -43,15 +43,13 @@ import javax.persistence.Version;
 )
 @NamedQueries({
 	@NamedQuery(
-			name = "findGrade",
-			query = "from Grade g where g.name = :grade"
-	)
-	,
+			name = "findGradeByName",
+			query = "from Grade g where g.name = :name"
+	),
 	@NamedQuery(
 			name = "findAllGrades",
 			query = "from Grade g"
-	)
-	,
+	),
 	@NamedQuery(
 			name = "deleteGrades",
 			query = "delete from Grade g"
@@ -88,8 +86,16 @@ public class Grade implements Serializable {
 		return name;
 	}
 
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public String getDisplayName() {
 		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
 	}
 
 }

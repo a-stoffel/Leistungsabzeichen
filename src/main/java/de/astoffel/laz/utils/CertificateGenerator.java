@@ -44,7 +44,7 @@ import org.hibernate.query.Query;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 public abstract class CertificateGenerator {
 

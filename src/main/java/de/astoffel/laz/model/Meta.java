@@ -30,7 +30,7 @@ import org.hibernate.query.Query;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 @Entity
 @Access(AccessType.FIELD)

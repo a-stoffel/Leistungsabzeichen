@@ -43,11 +43,11 @@ import org.hibernate.query.Query;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 public final class FilterController {
 
-	private static final Predicate<ObservableParticipation> PREDICATE_NONE = p -> true;
+	private static final Predicate<LiveParticipation> PREDICATE_NONE = p -> true;
 
 	@Inject
 	private ApplicationState application;
@@ -60,7 +60,7 @@ public final class FilterController {
 	private final ListProperty<SelectableEntity<Jury>> juries = new SimpleListProperty<>(
 			FXCollections.observableArrayList());
 
-	private final ObjectProperty<Predicate<ObservableParticipation>> predicate
+	private final ObjectProperty<Predicate<LiveParticipation>> predicate
 			= new SimpleObjectProperty<>(PREDICATE_NONE);
 
 	@FXML
@@ -180,7 +180,7 @@ public final class FilterController {
 		});
 	}
 
-	ObservableValue<Predicate<ObservableParticipation>> predicateProperty() {
+	ObservableValue<Predicate<LiveParticipation>> predicateProperty() {
 		return predicate;
 	}
 }

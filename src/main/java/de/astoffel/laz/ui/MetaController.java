@@ -28,7 +28,7 @@ import javax.inject.Inject;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 public class MetaController {
 
@@ -37,7 +37,7 @@ public class MetaController {
 
 	private ChangeListener<Project> projectListener;
 
-	private ObservableMeta meta;
+	private LiveMeta meta;
 
 	@FXML
 	private TextField locationTextField;
@@ -73,7 +73,7 @@ public class MetaController {
 		} else {
 			DataModel model = project.getModel();
 			model.atomic(session -> {
-				meta = new ObservableMeta(model, Meta.getInstance(session));
+				meta = new LiveMeta(model, Meta.getInstance(session));
 			});
 			locationTextField.textProperty().bindBidirectional(meta.locationProperty());
 			eventDateTextField.textProperty().bindBidirectional(meta.eventDateProperty());

@@ -17,6 +17,7 @@
 package de.astoffel.laz.ui;
 
 import de.astoffel.laz.ApplicationState;
+import de.astoffel.laz.FXMLLoaderProducer;
 import de.astoffel.laz.Main;
 import de.astoffel.laz.Project;
 import de.astoffel.laz.model.Participation;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuItem;
@@ -49,7 +51,7 @@ import org.controlsfx.control.TaskProgressView;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 public class MainController {
 
@@ -59,12 +61,16 @@ public class MainController {
 
 	@Inject
 	private ApplicationState application;
+	@Inject
+	private FXMLLoaderProducer fxmlLoaderProducer;
 
 	private Preferences preferences;
 
 	@FXML
 	private Parent view;
 
+	@FXML
+	private MenuItem openConfigurationMenuItem;
 	@FXML
 	private MenuItem importMenuItem;
 	@FXML
@@ -81,6 +87,7 @@ public class MainController {
 	public void initialize() {
 		preferences = Preferences.userNodeForPackage(Main.class).node("settings");
 
+		openConfigurationMenuItem.disableProperty().bind(application.projectProperty().isNull());
 		exportMenuItem.disableProperty().bind(application.projectProperty().isNull());
 		importMenuItem.disableProperty().bind(application.projectProperty().isNull());
 		createCertificateMenuItem.disableProperty().bind(application.projectProperty().isNull());
@@ -104,6 +111,24 @@ public class MainController {
 		}
 		preferences.put(PREF_LAST_DIR, selection.toString());
 		application.open(selection.toPath());
+	}
+
+	@FXML
+	public void openConfiguration() {
+		try {
+			FXMLLoader fxmlLoader = fxmlLoaderProducer.produceFXMLLoader();
+			fxmlLoader.setLocation(ConfigurationDialogController.class.getResource("ConfigurationDialog.fxml"));
+			Parent root = fxmlLoader.load();
+			Stage dialog = new Stage();
+			dialog.setScene(new Scene(root));
+			dialog.initOwner(view.getScene().getWindow());
+			dialog.initModality(Modality.WINDOW_MODAL);
+			dialog.initStyle(StageStyle.UTILITY);
+			dialog.setTitle("Konfiguration");
+			dialog.showAndWait();
+		} catch (IOException ex) {
+			LOG.log(Level.SEVERE, "opening configuration dialog failed", ex);
+		}
 	}
 
 	@FXML
@@ -185,7 +210,7 @@ public class MainController {
 	private List<Participation> listCertificateParticipations() {
 		List<Participation> participations = participationController.participationsProperty().stream()
 				.filter(p -> p.hasParticipated())
-				.map(ObservableParticipation::getParticipation)
+				.map(LiveParticipation::getParticipation)
 				.sorted((a, b) -> {
 					int comp = a.getJury().getName().compareTo(b.getJury().getName());
 					if (comp != 0) {

@@ -35,7 +35,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 @XmlRootElement(name = "leistungsabzeichen")
 public final class ExtData {

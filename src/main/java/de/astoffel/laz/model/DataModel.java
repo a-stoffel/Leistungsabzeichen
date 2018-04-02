@@ -30,7 +30,7 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 public final class DataModel implements AutoCloseable {
 
@@ -90,7 +90,7 @@ public final class DataModel implements AutoCloseable {
 	public DataSession getSession() {
 		return new DataSession(sessionFactory.getCurrentSession());
 	}
-
+	
 	public void atomic(AtomicTx atomic) {
 		atomicThrows(atomic);
 	}

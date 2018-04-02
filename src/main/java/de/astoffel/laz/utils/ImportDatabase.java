@@ -46,16 +46,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.xml.bind.JAXB;
-import org.hibernate.query.Query;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 public abstract class ImportDatabase {
 
 	public static void importDatabase(DataModel model, Path path) throws IOException {
-		try ( Reader reader = new InputStreamReader(
+		try (Reader reader = new InputStreamReader(
 				Files.newInputStream(path), StandardCharsets.UTF_8)) {
 			importDatabase(model, reader);
 		}
@@ -77,12 +76,12 @@ public abstract class ImportDatabase {
 
 	private static void clearDatabase(DataSession session) {
 		session.getNamedQuery("deleteParticipations").executeUpdate();
-		session.getNamedQuery("deleteParticipants").executeUpdate();
-		session.getNamedQuery("deleteJuries").executeUpdate();
-		session.getNamedQuery("deleteExams").executeUpdate();
-		session.getNamedQuery("deleteCategories").executeUpdate();
-		session.getNamedQuery("deleteInstruments").executeUpdate();
-		session.getNamedQuery("deleteGrades").executeUpdate();
+		session.participants().deleteAll();
+		session.juries().deleteAll();
+		session.exams().deleteAll();
+		session.categories().deleteAll();
+		session.instruments().deleteAll();
+		session.grades().deleteAll();
 		session.getNamedQuery("deleteMetas").executeUpdate();
 	}
 
@@ -109,12 +108,12 @@ public abstract class ImportDatabase {
 	}
 
 	private static void importExams(DataSession session, List<ExtExam> exams) {
-		Query<Category> category = session.getNamedQuery("findCategory");
 		for (ExtExam e : exams) {
 			Map<Category, String> descriptions = new HashMap<>();
 			for (ExtExam.ExtDescription d : e.getDescriptions()) {
-				category.setParameter("category", d.getCategory());
-				descriptions.put(category.uniqueResult(), d.getDescription());
+				descriptions.put(
+						session.categories().findByName(d.getCategory()),
+						d.getDescription());
 			}
 			session.persist(new Exam(e.getSort(), e.getName(),
 					e.getDisplayName(), e.getDisplayShortName(), descriptions));
@@ -128,28 +127,20 @@ public abstract class ImportDatabase {
 	}
 
 	private static void importParticipants(DataSession session, List<ExtParticipant> participants) {
-		Query<Category> category = session.getNamedQuery("findCategory");
-		Query<Instrument> instrument = session.getNamedQuery("findInstrument");
-		Query<Jury> jury = session.getNamedQuery("findJury");
-		List<Exam> exams = session.<Exam>getNamedQuery("findAllExams").list();
-		Query<Exam> exam = session.getNamedQuery("findExam");
-		Query<Grade> grade = session.getNamedQuery("findGrade");
+		List<Exam> exams = session.exams().findAll();
 		for (ExtParticipant p : participants) {
 			Participant participant = new Participant(p.getName());
 			session.persist(participant);
 			for (ExtParticipation pp : p.getParticipations()) {
-				category.setParameter("category", pp.getCategory());
-				instrument.setParameter("instrument", pp.getInstrument());
-				jury.setParameter("jury", pp.getJury());
 				Participation participation = new Participation(participant,
-						category.uniqueResult(),
-						instrument.uniqueResult(),
-						jury.uniqueResult(), exams);
+						session.categories().findByName(pp.getCategory()),
+						session.instruments().findByName(pp.getInstrument()),
+						session.juries().findByName(pp.getJury()),
+						exams);
 				for (ExtAssessment a : pp.getAssessments()) {
-					exam.setParameter("exam", a.getExam());
-					grade.setParameter("grade", a.getGrade());
-					Assessment assessment = participation.getAssessment(exam.uniqueResult());
-					assessment.setGrade(grade.uniqueResult());
+					Assessment assessment = participation.getAssessment(
+							session.exams().findByName(a.getExam()));
+					assessment.setGrade(session.grades().findByName(a.getGrade()));
 				}
 				session.persist(participation);
 			}

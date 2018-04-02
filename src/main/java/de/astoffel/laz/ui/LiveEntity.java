@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Andreas Stoffel
+ * Copyright (C) 2018 astoffel
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,39 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.astoffel.laz.model.extern;
+package de.astoffel.laz.ui;
 
-import de.astoffel.laz.model.Assessment;
-import de.astoffel.laz.model.Exam;
-import javax.xml.bind.annotation.XmlAttribute;
+import java.util.List;
+import javafx.beans.property.ObjectProperty;
 
 /**
  *
  * @author astoffel
  */
-public final class ExtAssessment {
+abstract class LiveEntity {
 
-	@XmlAttribute(name = "exam", required = true)
-	private String exam;
-	@XmlAttribute(name = "grade")
-	private String grade;
+	abstract ObjectProperty<String> nameProperty();
 
-	private ExtAssessment() {
-	}
-
-	public ExtAssessment(Exam exam, Assessment assessment) {
-		this.exam = exam.getName();
-		if (assessment.getGrade() != null) {
-			this.grade = assessment.getGrade().getName();
-		}
-	}
-
-	public String getExam() {
-		return exam;
-	}
-
-	public String getGrade() {
-		return grade;
-	}
-
+	abstract List<PropertySheetItem> propertySheetItems();
 }

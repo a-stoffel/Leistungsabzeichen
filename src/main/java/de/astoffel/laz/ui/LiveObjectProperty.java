@@ -23,23 +23,23 @@ import javafx.beans.property.ObjectPropertyBase;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
-final class UpdateObjectProperty<O, T> extends ObjectPropertyBase<T> {
+final class LiveObjectProperty<O, T> extends ObjectPropertyBase<T> {
 
 	private final DataModel model;
 	private final O object;
 	private final Function<O, T> getter;
 	private final BiConsumer<O, T> setter;
 
-	public UpdateObjectProperty(DataModel model, O object,
+	public LiveObjectProperty(DataModel model, O object,
 			Function<O, T> getter, BiConsumer<O, T> setter) {
 		this(getter.apply(object), model, object, getter, setter);
 	}
 
-	private UpdateObjectProperty(T initialValue, DataModel model, O object,
+	private LiveObjectProperty(T initialValue, DataModel model, O object,
 			Function<O, T> getter, BiConsumer<O, T> setter) {
-		super(initialValue);
+		super(initialValue);		
 		this.model = model;
 		this.object = object;
 		this.getter = getter;

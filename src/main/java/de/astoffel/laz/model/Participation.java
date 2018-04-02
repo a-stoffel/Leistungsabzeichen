@@ -28,7 +28,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyJoinColumn;
 import javax.persistence.NamedQueries;
@@ -40,7 +39,7 @@ import javax.persistence.Version;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 @Entity
 @Access(AccessType.FIELD)
@@ -95,10 +94,7 @@ public class Participation implements Serializable {
 	private Jury jury;
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinTable(
-			joinColumns = @JoinColumn(name = "participation_id", nullable = false),
-			inverseJoinColumns = @JoinColumn(name = "assessment_id", nullable = false)
-	)
+	@JoinColumn(name = "participation_id", nullable = false)
 	@MapKeyJoinColumn(name = "exam_id", nullable = false)
 	private Map<Exam, Assessment> assessments;
 

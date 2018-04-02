@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import org.controlsfx.control.PropertySheet?>
+
+<BorderPane xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.astoffel.laz.ui.ConfigurationDialogController">
+   <center>
+      <PropertySheet fx:id="properties" BorderPane.alignment="CENTER" />
+   </center>
+   <left>
+      <TreeView fx:id="navigationTree" prefHeight="200.0" prefWidth="200.0" showRoot="false" BorderPane.alignment="CENTER" />
+   </left>
+</BorderPane>

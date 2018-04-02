@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Andreas Stoffel
+ * Copyright (C) 2018 astoffel
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,31 +17,34 @@
 package de.astoffel.laz.ui;
 
 import de.astoffel.laz.model.DataModel;
-import de.astoffel.laz.model.Meta;
+import de.astoffel.laz.model.Jury;
+import java.util.List;
 import javafx.beans.property.ObjectProperty;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
-final class ObservableMeta {
+final class LiveJury extends LiveEntity {
 
-	private final ObjectProperty<String> location;
-	private final ObjectProperty<String> eventDate;
+	private final ObjectProperty<String> name;
+	private final List<PropertySheetItem> propertySheetItems;
 
-	public ObservableMeta(DataModel model, Meta meta) {
-		this.location = new UpdateObjectProperty<>(
-				model, meta, Meta::getLocation, Meta::setLocation);
-		this.eventDate = new UpdateObjectProperty<>(
-				model, meta, Meta::getEventDate, Meta::setEventDate);
+	public LiveJury(DataModel model, Jury jury) {
+		this.name = new LiveObjectProperty<>(
+				model, jury, Jury::getName, Jury::setName);
+		this.propertySheetItems = List.of(
+				new PropertySheetItem(String.class, "Name", "", "", this.name));
 	}
 
-	public ObjectProperty<String> locationProperty() {
-		return location;
+	@Override
+	List<PropertySheetItem> propertySheetItems() {
+		return propertySheetItems;
 	}
 
-	public ObjectProperty<String> eventDateProperty() {
-		return eventDate;
+	@Override
+	ObjectProperty<String> nameProperty() {
+		return name;
 	}
 
 }

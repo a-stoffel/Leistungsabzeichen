@@ -28,7 +28,7 @@ import org.jboss.weld.environment.se.WeldContainer;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 public class Main extends Application {
 

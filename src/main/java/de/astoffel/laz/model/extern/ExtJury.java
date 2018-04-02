@@ -21,7 +21,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 public final class ExtJury {
 

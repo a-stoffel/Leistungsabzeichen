@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Andreas Stoffel
+ * Copyright (C) 2018 astoffel
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,36 +14,38 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.astoffel.laz;
+package de.astoffel.laz.ui;
 
 import de.astoffel.laz.model.DataModel;
-import java.nio.file.Path;
+import de.astoffel.laz.model.Participant;
+import java.util.List;
+import javafx.beans.property.ObjectProperty;
 
 /**
  *
  * @author astoffel
  */
-public final class Project implements AutoCloseable {
+final class LiveParticipant extends LiveEntity {
 
-	private final Path prefix;
-	private final DataModel model;
+	private final ObjectProperty<String> name;
+	private final List<PropertySheetItem> propertySheetItems;
 
-	public Project(Path prefix) {
-		this.prefix = prefix;
-		this.model = new DataModel(prefix);
-	}
-
-	public Path getPrefix() {
-		return prefix;
-	}
-
-	public DataModel getModel() {
-		return model;
+	public LiveParticipant(DataModel model, Participant participant) {
+		this.name = new LiveObjectProperty<>(
+				model, participant, Participant::getName, Participant::setName);
+		this.propertySheetItems = List.of(
+				new PropertySheetItem(String.class, "Name", "", "", this.name)
+		);
 	}
 
 	@Override
-	public void close() {
-		model.close();
+	public List<PropertySheetItem> propertySheetItems() {
+		return propertySheetItems;
+	}
+
+	@Override
+	public ObjectProperty<String> nameProperty() {
+		return name;
 	}
 
 }

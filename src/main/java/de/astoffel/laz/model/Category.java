@@ -33,7 +33,7 @@ import javax.persistence.Version;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 @Entity
 @Access(AccessType.FIELD)
@@ -44,8 +44,8 @@ import javax.persistence.Version;
 )
 @NamedQueries({
 	@NamedQuery(
-			name = "findCategory",
-			query = "from Category c where c.name = :category"
+			name = "findCategoryByName",
+			query = "from Category c where c.name = :name"
 	),
 	@NamedQuery(
 			name = "findAllCategories",
@@ -113,8 +113,16 @@ public class Category implements Serializable {
 		return name;
 	}
 
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public String getDisplayName() {
 		return displayName;
+	}
+
+	public void setDisplayName(String displayName) {
+		this.displayName = displayName;
 	}
 
 }

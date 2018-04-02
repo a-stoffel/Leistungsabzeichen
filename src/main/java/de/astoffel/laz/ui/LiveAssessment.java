@@ -23,14 +23,14 @@ import javafx.beans.property.ObjectProperty;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
-final class ObservableAssessment {
+final class LiveAssessment {
 
 	private final ObjectProperty<Grade> grade;
 
-	public ObservableAssessment(DataModel model, Assessment assessment) {
-		this.grade = new UpdateObjectProperty<>(
+	public LiveAssessment(DataModel model, Assessment assessment) {
+		this.grade = new LiveObjectProperty<>(
 				model, assessment, Assessment::getGrade, Assessment::setGrade);
 	}
 

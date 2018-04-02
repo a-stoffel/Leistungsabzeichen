@@ -32,7 +32,7 @@ import javax.persistence.Version;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 @Entity
 @Access(AccessType.FIELD)
@@ -43,8 +43,8 @@ import javax.persistence.Version;
 )
 @NamedQueries({
 	@NamedQuery(
-			name = "findJury",
-			query = "from Jury j where j.name = :jury"
+			name = "findJuryByName",
+			query = "from Jury j where j.name = :name"
 	)
 	,
 	@NamedQuery(
@@ -84,5 +84,9 @@ public class Jury implements Serializable {
 
 	public String getName() {
 		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
 	}
 }

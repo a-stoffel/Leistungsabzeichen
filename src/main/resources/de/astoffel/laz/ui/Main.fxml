@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!--
 Copyright (C) 2018 Andreas Stoffel
 
@@ -25,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane fx:id="view" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.astoffel.laz.ui.MainController">
+<BorderPane fx:id="view" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.astoffel.laz.ui.MainController">
 	<top>
 		<MenuBar prefHeight="25.0" prefWidth="593.0" BorderPane.alignment="CENTER">
 			<menus>
@@ -38,6 +39,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				</Menu>
 				<Menu mnemonicParsing="false" text="Datenbank">
 					<items>
+                  <MenuItem fx:id="openConfigurationMenuItem" mnemonicParsing="false" onAction="#openConfiguration" text="Konfigurieren" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
 						<MenuItem fx:id="importMenuItem" mnemonicParsing="false" onAction="#importData" text="Importieren ..." />
 						<MenuItem fx:id="exportMenuItem" mnemonicParsing="false" onAction="#exportData" text="Exportieren ...." />
 					</items>

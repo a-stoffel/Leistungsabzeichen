@@ -30,21 +30,19 @@ import javax.persistence.Version;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 @Entity
 @Access(AccessType.FIELD)
 @NamedQueries({
 	@NamedQuery(
-			name = "findParticipant",
+			name = "findParticipantByname",
 			query = "from Participant p where p.name = :name"
-	)
-	,
+	),
 	 @NamedQuery(
 			name = "findAllParticipants",
-			query = "from Participant p"
-	)
-	,
+			query = "from Participant p order by p.name asc"
+	),
 	 @NamedQuery(
 			name = "deleteParticipants",
 			query = "delete from Participant p"

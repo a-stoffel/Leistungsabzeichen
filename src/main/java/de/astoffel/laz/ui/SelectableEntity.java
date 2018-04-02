@@ -21,7 +21,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 final class SelectableEntity<T> {
 

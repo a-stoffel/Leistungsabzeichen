@@ -28,7 +28,7 @@ import javax.xml.bind.annotation.XmlValue;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 public final class ExtExam {
 

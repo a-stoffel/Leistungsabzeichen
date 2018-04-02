@@ -14,39 +14,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.astoffel.laz.model.extern;
+package de.astoffel.laz.ui;
 
-import de.astoffel.laz.model.Assessment;
-import de.astoffel.laz.model.Exam;
-import javax.xml.bind.annotation.XmlAttribute;
+import de.astoffel.laz.model.DataModel;
+import de.astoffel.laz.model.Meta;
+import javafx.beans.property.ObjectProperty;
 
 /**
  *
  * @author astoffel
  */
-public final class ExtAssessment {
+final class LiveMeta {
 
-	@XmlAttribute(name = "exam", required = true)
-	private String exam;
-	@XmlAttribute(name = "grade")
-	private String grade;
+	private final ObjectProperty<String> location;
+	private final ObjectProperty<String> eventDate;
 
-	private ExtAssessment() {
+	public LiveMeta(DataModel model, Meta meta) {
+		this.location = new LiveObjectProperty<>(
+				model, meta, Meta::getLocation, Meta::setLocation);
+		this.eventDate = new LiveObjectProperty<>(
+				model, meta, Meta::getEventDate, Meta::setEventDate);
 	}
 
-	public ExtAssessment(Exam exam, Assessment assessment) {
-		this.exam = exam.getName();
-		if (assessment.getGrade() != null) {
-			this.grade = assessment.getGrade().getName();
-		}
+	public ObjectProperty<String> locationProperty() {
+		return location;
 	}
 
-	public String getExam() {
-		return exam;
-	}
-
-	public String getGrade() {
-		return grade;
+	public ObjectProperty<String> eventDateProperty() {
+		return eventDate;
 	}
 
 }

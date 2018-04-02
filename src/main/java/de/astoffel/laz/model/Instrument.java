@@ -32,7 +32,7 @@ import javax.persistence.Version;
 
 /**
  *
- * @author andreas
+ * @author astoffel
  */
 @Entity
 @Access(AccessType.FIELD)
@@ -43,15 +43,13 @@ import javax.persistence.Version;
 )
 @NamedQueries({
 	@NamedQuery(
-			name = "findInstrument",
-			query = "from Instrument i where i.name = :instrument"
-	)
-	,
+			name = "findInstrumentByName",
+			query = "from Instrument i where i.name = :name"
+	),
 	@NamedQuery(
 			name = "findAllInstruments",
 			query = "from Instrument i"
-	)
-		,
+	),
 	@NamedQuery(
 			name = "deleteInstruments",
 			query = "delete from Instrument i"
@@ -88,8 +86,16 @@ public class Instrument implements Serializable {
 		return name;
 	}
 
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public String getDisplayName() {
 		return displayName;
+	}
+
+	public void setDisplayName(String name) {
+		this.displayName = name;
 	}
 
 }
