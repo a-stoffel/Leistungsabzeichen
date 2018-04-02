@@ -56,7 +56,7 @@ import javax.persistence.Version;
 			query = "delete from Category c"
 	)
 })
-public class Category implements Serializable {
+public class Category implements Serializable, Comparable<Category> {
 
 	private static final long serialVersionUID = 0L;
 
@@ -103,6 +103,12 @@ public class Category implements Serializable {
 		}
 		final Category other = (Category) obj;
 		return Objects.equals(this.id, other.id);
+	}
+
+	@Override
+	public int compareTo(Category o) {
+		return (this.name == null ? "" : this.name).compareTo(
+				o.name == null ? "" : o.name);
 	}
 
 	public Long getId() {

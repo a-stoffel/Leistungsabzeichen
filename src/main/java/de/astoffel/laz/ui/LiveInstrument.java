@@ -25,20 +25,21 @@ import javafx.beans.property.ObjectProperty;
  *
  * @author astoffel
  */
-final class LiveInstrument extends LiveEntity {
+final class LiveInstrument extends LiveEntity<Instrument> {
 
 	private final ObjectProperty<String> name;
 	private final ObjectProperty<String> displayName;
 	private final List<PropertySheetItem> propertySheetItems;
 
 	public LiveInstrument(DataModel model, Instrument instrument) {
+		super(instrument);
 		this.name = new LiveObjectProperty<>(
 				model, instrument, Instrument::getName, Instrument::setName);
 		this.displayName = new LiveObjectProperty<>(
 				model, instrument, Instrument::getDisplayName, Instrument::setDisplayName);
 		this.propertySheetItems = List.of(
-				new PropertySheetItem(String.class, "Name", "", "", this.name),
-				new PropertySheetItem(String.class, "Display Name", "", "", this.displayName)
+				new PropertySheetItem<>(String.class, "Name", "", "", this.name),
+				new PropertySheetItem<>(String.class, "Display Name", "", "", this.displayName)
 		);
 	}
 

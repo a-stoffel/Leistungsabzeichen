@@ -23,8 +23,19 @@ import javafx.beans.property.ObjectProperty;
  *
  * @author astoffel
  */
-abstract class LiveEntity {
+abstract class LiveEntity<E extends Comparable<E>> implements Comparable<LiveEntity<E>> {
 
+	private final E entity;
+
+	protected LiveEntity(E entity) {
+		this.entity = entity;
+	}
+
+	@Override
+	public int compareTo(LiveEntity<E> o) {
+		return this.entity.compareTo(o.entity);
+	}
+	
 	abstract ObjectProperty<String> nameProperty();
 
 	abstract List<PropertySheetItem> propertySheetItems();

@@ -45,19 +45,17 @@ import javax.persistence.Version;
 	@NamedQuery(
 			name = "findJuryByName",
 			query = "from Jury j where j.name = :name"
-	)
-	,
+	),
 	@NamedQuery(
 			name = "findAllJuries",
 			query = "from Jury j"
-	)
-	,
+	),
 	@NamedQuery(
 			name = "deleteJuries",
 			query = "delete from Jury j"
 	)
 })
-public class Jury implements Serializable {
+public class Jury implements Serializable, Comparable<Jury> {
 
 	private static final long serialVersionUID = 0L;
 
@@ -77,7 +75,13 @@ public class Jury implements Serializable {
 	public Jury(String name) {
 		this.name = name;
 	}
-	
+
+	@Override
+	public int compareTo(Jury o) {
+		return (this.name == null ? "" : this.name).compareTo(
+				o.name == null ? "" : o.name);
+	}
+
 	public Long getId() {
 		return id;
 	}
@@ -85,7 +89,7 @@ public class Jury implements Serializable {
 	public String getName() {
 		return name;
 	}
-	
+
 	public void setName(String name) {
 		this.name = name;
 	}

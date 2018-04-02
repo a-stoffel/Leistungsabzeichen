@@ -104,4 +104,8 @@ public final class DataSession {
 	public void refresh(Object object) {
 		session.refresh(object);
 	}
+
+	public void delete(Object object) {
+		session.delete(object);;
+	}
 }

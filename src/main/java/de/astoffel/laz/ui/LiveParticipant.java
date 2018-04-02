@@ -25,16 +25,17 @@ import javafx.beans.property.ObjectProperty;
  *
  * @author astoffel
  */
-final class LiveParticipant extends LiveEntity {
+final class LiveParticipant extends LiveEntity<Participant> {
 
 	private final ObjectProperty<String> name;
 	private final List<PropertySheetItem> propertySheetItems;
 
 	public LiveParticipant(DataModel model, Participant participant) {
+		super(participant);
 		this.name = new LiveObjectProperty<>(
 				model, participant, Participant::getName, Participant::setName);
 		this.propertySheetItems = List.of(
-				new PropertySheetItem(String.class, "Name", "", "", this.name)
+				new PropertySheetItem<>(String.class, "Name", "", "", this.name)
 		);
 	}
 

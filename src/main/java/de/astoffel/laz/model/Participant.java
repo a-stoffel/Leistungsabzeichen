@@ -39,16 +39,16 @@ import javax.persistence.Version;
 			name = "findParticipantByname",
 			query = "from Participant p where p.name = :name"
 	),
-	 @NamedQuery(
+	@NamedQuery(
 			name = "findAllParticipants",
 			query = "from Participant p order by p.name asc"
 	),
-	 @NamedQuery(
+	@NamedQuery(
 			name = "deleteParticipants",
 			query = "delete from Participant p"
 	)
 })
-public class Participant implements Serializable {
+public class Participant implements Serializable, Comparable<Participant> {
 
 	private static final long serialVersionUID = 0L;
 
@@ -67,6 +67,12 @@ public class Participant implements Serializable {
 
 	public Participant(String name) {
 		this.name = name;
+	}
+
+	@Override
+	public int compareTo(Participant o) {
+		return (this.name == null ? "" : this.name).compareTo(
+				o.name == null ? "" : o.name);
 	}
 
 	public Long getId() {

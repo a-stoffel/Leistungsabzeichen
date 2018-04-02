@@ -35,6 +35,16 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 public final class DataModel implements AutoCloseable {
 
 	@FunctionalInterface
+	public static interface AtomicComputeThrowsTx<R, E extends Exception> {
+
+		public R atomicCompute(DataSession session) throws E;
+	}
+
+	@FunctionalInterface
+	public static interface AtomicComputeTx<R> extends AtomicComputeThrowsTx<R, RuntimeException> {
+	}
+
+	@FunctionalInterface
 	public static interface AtomicThrowsTx<E extends Exception> {
 
 		public void atomic(DataSession session) throws E;
@@ -90,17 +100,31 @@ public final class DataModel implements AutoCloseable {
 	public DataSession getSession() {
 		return new DataSession(sessionFactory.getCurrentSession());
 	}
-	
+
 	public void atomic(AtomicTx atomic) {
 		atomicThrows(atomic);
 	}
 
 	public <E extends Exception> void atomicThrows(AtomicThrowsTx<E> atomic) throws E {
+		atomicComputeThrows(session -> {
+			atomic.atomic(session);
+			return null;
+		});
+	}
+
+	public <R> R atomicCompute(AtomicComputeTx<R> atomicCompute) {
+		return atomicComputeThrows(atomicCompute);
+	}
+
+	public <R, E extends Exception> R atomicComputeThrows(AtomicComputeThrowsTx<R, E> atomic) throws E {
 		Session session = sessionFactory.getCurrentSession();
 		Transaction transaction = session.beginTransaction();
 		try {
-			atomic.atomic(new DataSession(session));
-			transaction.commit();
+			try {
+				return atomic.atomicCompute(new DataSession(session));
+			} finally {
+				transaction.commit();
+			}
 		} catch (Throwable th) {
 			transaction.rollback();
 			throw th;

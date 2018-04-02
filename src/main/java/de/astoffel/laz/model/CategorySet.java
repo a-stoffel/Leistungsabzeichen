@@ -23,7 +23,7 @@ package de.astoffel.laz.model;
 public class CategorySet extends EntitySet<Category> {
 
 	public CategorySet(DataSession session) {
-		super(session, Category.class, Category::new, 
+		super(session, Category.class, () -> new Category("", ""),
 				"findCategoryByName", "findAllCategories", "deleteCategories");
 	}
 

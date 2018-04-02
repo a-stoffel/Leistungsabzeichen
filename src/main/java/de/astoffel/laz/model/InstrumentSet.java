@@ -23,7 +23,7 @@ package de.astoffel.laz.model;
 public final class InstrumentSet extends EntitySet<Instrument> {
 
 	public InstrumentSet(DataSession session) {
-		super(session, Instrument.class, Instrument::new,
+		super(session, Instrument.class, () -> new Instrument("", ""),
 				"findInstrumentByName", "findAllInstruments", "deleteInstruments");
 	}
 

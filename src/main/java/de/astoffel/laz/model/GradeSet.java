@@ -23,8 +23,8 @@ package de.astoffel.laz.model;
 public class GradeSet extends EntitySet<Grade> {
 
 	public GradeSet(DataSession session) {
-		super(session, Grade.class, Grade::new, 
-				"findGradeByName", "findAllGrades", "deleteGrades");
+		super(session, Grade.class, () -> new Grade("", ""),
+				 "findGradeByName", "findAllGrades", "deleteGrades");
 	}
 
 }

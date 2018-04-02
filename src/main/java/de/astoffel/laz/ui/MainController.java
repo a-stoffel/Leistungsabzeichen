@@ -123,7 +123,6 @@ public class MainController {
 			dialog.setScene(new Scene(root));
 			dialog.initOwner(view.getScene().getWindow());
 			dialog.initModality(Modality.WINDOW_MODAL);
-			dialog.initStyle(StageStyle.UTILITY);
 			dialog.setTitle("Konfiguration");
 			dialog.showAndWait();
 		} catch (IOException ex) {

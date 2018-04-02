@@ -16,6 +16,8 @@
  */
 package de.astoffel.laz.model;
 
+import java.util.Map;
+
 /**
  *
  * @author astoffel
@@ -23,7 +25,7 @@ package de.astoffel.laz.model;
 public class ExamSet extends EntitySet<Exam> {
 
 	public ExamSet(DataSession session) {
-		super(session, Exam.class, Exam::new,
+		super(session, Exam.class, () -> new Exam(0, "", "", "", Map.of()),
 				"findExamByName", "findAllExams", "deleteExams");
 	}
 

@@ -23,7 +23,7 @@ package de.astoffel.laz.model;
 public class ParticipantSet extends EntitySet<Participant> {
 
 	public ParticipantSet(DataSession session) {
-		super(session, Participant.class, Participant::new,
+		super(session, Participant.class, () -> new Participant(""),
 				"findParticipantByName", "findAllParticipants", "deleteParticipants");
 	}
 

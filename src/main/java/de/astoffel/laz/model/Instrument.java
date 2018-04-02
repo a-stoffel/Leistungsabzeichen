@@ -55,7 +55,7 @@ import javax.persistence.Version;
 			query = "delete from Instrument i"
 	)
 })
-public class Instrument implements Serializable {
+public class Instrument implements Serializable, Comparable<Instrument> {
 
 	private static final long serialVersionUID = 0L;
 
@@ -80,6 +80,12 @@ public class Instrument implements Serializable {
 	public Instrument(String name, String displayName) {
 		this.name = name;
 		this.displayName = displayName;
+	}
+
+	@Override
+	public int compareTo(Instrument o) {
+		return (this.name == null ? "" : this.name).compareTo(
+				o.name == null ? "" : o.name);
 	}
 
 	public String getName() {

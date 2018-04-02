@@ -17,6 +17,7 @@
 package de.astoffel.laz.ui;
 
 import de.astoffel.laz.model.DataModel;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import javafx.beans.property.ObjectPropertyBase;
@@ -58,6 +59,9 @@ final class LiveObjectProperty<O, T> extends ObjectPropertyBase<T> {
 
 	@Override
 	public void set(T newValue) {
+		if (Objects.equals(get(), newValue)) {
+			return;
+		}
 		super.set(newValue);
 		try {
 			setter.accept(object, newValue);

@@ -58,7 +58,7 @@ import org.hibernate.annotations.OnDeleteAction;
 			query = "delete from Exam e"
 	)
 })
-public class Exam implements Serializable {
+public class Exam implements Serializable, Comparable<Exam> {
 
 	private static final long serialVersionUID = 0L;
 
@@ -126,8 +126,19 @@ public class Exam implements Serializable {
 		return Objects.equals(this.id, other.id);
 	}
 
+	@Override
+	public int compareTo(Exam o) {
+		return Integer.compare(
+				this.sort == null ? 0 : sort,
+				o.sort == null ? 0 : o.sort);
+	}
+
 	public Integer getSort() {
 		return sort;
+	}
+
+	public void setSort(Integer sort) {
+		this.sort = sort;
 	}
 
 	public String getName() {

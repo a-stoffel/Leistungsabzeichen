@@ -25,14 +25,18 @@ import javafx.beans.property.ObjectProperty;
  *
  * @author astoffel
  */
-final class LiveExam extends LiveEntity {
+final class LiveExam extends LiveEntity<Exam> {
 
+	private final ObjectProperty<Integer> sort;
 	private final ObjectProperty<String> name;
 	private final ObjectProperty<String> displayShortName;
 	private final ObjectProperty<String> displayName;
 	private final List<PropertySheetItem> propertySheetItems;
 
 	public LiveExam(DataModel model, Exam exam) {
+		super(exam);
+		this.sort = new LiveObjectProperty<>(
+				model, exam, Exam::getSort, Exam::setSort);
 		this.name = new LiveObjectProperty<>(
 				model, exam, Exam::getName, Exam::setName);
 		this.displayShortName = new LiveObjectProperty<>(
@@ -40,9 +44,9 @@ final class LiveExam extends LiveEntity {
 		this.displayName = new LiveObjectProperty<>(
 				model, exam, Exam::getDisplayName, Exam::setDisplayName);
 		this.propertySheetItems = List.of(
-				new PropertySheetItem(String.class, "Name", "", "", this.name),
-				new PropertySheetItem(String.class, "Display Short Name", "", "", this.displayShortName),
-				new PropertySheetItem(String.class, "Display Name", "", "", this.displayName)
+				new PropertySheetItem<>(String.class, "Name", "", "", this.name),
+				new PropertySheetItem<>(String.class, "Display Short Name", "", "", this.displayShortName),
+				new PropertySheetItem<>(String.class, "Display Name", "", "", this.displayName)
 		);
 	}
 
@@ -55,7 +59,7 @@ final class LiveExam extends LiveEntity {
 	public ObjectProperty<String> nameProperty() {
 		return name;
 	}
-	
+
 	public ObjectProperty<String> displayShortNameProperty() {
 		return displayShortName;
 	}
