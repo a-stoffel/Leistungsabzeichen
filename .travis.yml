@@ -1,3 +1,8 @@
 language: java
+
 git:
     depth: false
+    
+before_install:
+    - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
+    - ./install-jdk.sh -f 10 -l BCL

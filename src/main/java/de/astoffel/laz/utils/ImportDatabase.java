@@ -75,14 +75,14 @@ public abstract class ImportDatabase {
 	}
 
 	private static void clearDatabase(DataSession session) {
-		session.getNamedQuery("deleteParticipations").executeUpdate();
-		session.participants().deleteAll();
-		session.juries().deleteAll();
-		session.exams().deleteAll();
-		session.categories().deleteAll();
-		session.instruments().deleteAll();
-		session.grades().deleteAll();
-		session.getNamedQuery("deleteMetas").executeUpdate();
+		Participation.deleteAll(session);
+		Participant.deleteAll(session);
+		Jury.deleteAll(session);
+		Exam.deleteAll(session);
+		Category.deleteAll(session);
+		Instrument.deleteAll(session);
+		Grade.deleteAll(session);
+		Meta.deleteAll(session);
 	}
 
 	private static void importMeta(DataSession session, ExtData data) {
@@ -112,7 +112,7 @@ public abstract class ImportDatabase {
 			Map<Category, String> descriptions = new HashMap<>();
 			for (ExtExam.ExtDescription d : e.getDescriptions()) {
 				descriptions.put(
-						session.categories().findByName(d.getCategory()),
+						Category.findByName(session, d.getCategory()).get(),
 						d.getDescription());
 			}
 			session.persist(new Exam(e.getSort(), e.getName(),
@@ -133,14 +133,15 @@ public abstract class ImportDatabase {
 			session.persist(participant);
 			for (ExtParticipation pp : p.getParticipations()) {
 				Participation participation = new Participation(participant,
-						session.categories().findByName(pp.getCategory()),
-						session.instruments().findByName(pp.getInstrument()),
-						session.juries().findByName(pp.getJury()),
-						exams);
+						Category.findByName(session, pp.getCategory()).get(),
+						Instrument.findByName(session, pp.getInstrument()).get(),
+						Jury.findByName(session, pp.getJury()).get(),
+						exams
+				);
 				for (ExtAssessment a : pp.getAssessments()) {
 					Assessment assessment = participation.getAssessment(
-							session.exams().findByName(a.getExam()));
-					assessment.setGrade(session.grades().findByName(a.getGrade()));
+							Exam.findByName(session, a.getExam()).get());
+					assessment.setGrade(Grade.findByName(session, a.getGrade()).get());
 				}
 				session.persist(participation);
 			}

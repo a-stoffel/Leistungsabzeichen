@@ -64,7 +64,7 @@ public abstract class CertificateGenerator {
 					throw new IOException("Template file not found");
 				}
 				generateLatex(certiciateTemplateFile, latexFile,
-						Meta.getInstance(session), participations, listExams(session));
+						Meta.find(session), participations, listExams(session));
 				createPdf(latexFile);
 				openResult(pdfFile);
 			});

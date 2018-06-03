@@ -16,15 +16,42 @@
  */
 package de.astoffel.laz.model;
 
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 /**
  *
  * @author astoffel
  */
-public class ParticipantSet extends EntitySet<Participant> {
+public class ParticipantTest extends AbstractPersistenceTest {
 
-	public ParticipantSet(DataSession session) {
-		super(session, Participant.class, () -> new Participant(""),
-				Participant::findAll);
+	public ParticipantTest() {
+	}
+
+	/**
+	 * Test of findAll method, of class Participant.
+	 */
+	@Test
+	public void testFindAll() {
+		System.out.println("findAll");
+		model.atomic(session -> {
+			  var result = Participant.findAll(session);
+			assertEquals(participants.size(), result.size());
+		});
+	}
+
+	/**
+	 * Test of deleteAll method, of class Participant.
+	 */
+	@Test
+	public void testDeleteAll() {
+		System.out.println("deleteAll");
+		model.atomic(session -> {
+			Participant.deleteAll(session);
+		});
+		model.atomic(session -> {
+			assertTrue(session.participants().findAll().isEmpty());
+		});
 	}
 
 }

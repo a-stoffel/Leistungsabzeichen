@@ -103,7 +103,9 @@ public class MainController {
 		if (!lastDirectory.isEmpty()) {
 			initialDirectory = new File(lastDirectory);
 		}
-		chooser.setInitialDirectory(initialDirectory);
+		if (initialDirectory.isDirectory()) {
+			chooser.setInitialDirectory(initialDirectory);
+		}
 		chooser.setTitle("Verzeichnis auswählen");
 		File selection = chooser.showDialog(view.getScene().getWindow());
 		if (selection == null) {

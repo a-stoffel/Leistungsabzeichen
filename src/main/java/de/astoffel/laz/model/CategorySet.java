@@ -24,7 +24,7 @@ public class CategorySet extends EntitySet<Category> {
 
 	public CategorySet(DataSession session) {
 		super(session, Category.class, () -> new Category("", ""),
-				"findCategoryByName", "findAllCategories", "deleteCategories");
+				Category::findAll);
 	}
 
 }

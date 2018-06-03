@@ -17,6 +17,8 @@
 package de.astoffel.laz.model;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Optional;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Basic;
@@ -51,11 +53,27 @@ import javax.persistence.Version;
 			query = "from Grade g"
 	),
 	@NamedQuery(
-			name = "deleteGrades",
+			name = "deleteAllGrades",
 			query = "delete from Grade g"
 	)
 })
-public class Grade implements Serializable, Comparable<Grade> {
+public class Grade implements EntityObject, Serializable, Comparable<Grade> {
+
+	public static Optional<Grade> findByName(DataSession session, String name) {
+		return session.<Grade>getNamedQuery("findGradeByName")
+				.setParameter("name", name)
+				.uniqueResultOptional();
+	}
+
+	public static List<Grade> findAll(DataSession session) {
+		return session.<Grade>getNamedQuery("findAllGrades")
+				.list();
+	}
+
+	public static void deleteAll(DataSession session) {
+		session.<Grade>getNamedQuery("deleteAllGrades")
+				.executeUpdate();
+	}
 
 	private static final long serialVersionUID = 0L;
 
@@ -86,6 +104,10 @@ public class Grade implements Serializable, Comparable<Grade> {
 	public int compareTo(Grade o) {
 		return (this.name == null ? "" : this.name).compareTo(
 				o.name == null ? "" : o.name);
+	}
+
+	public Long getId() {
+		return id;
 	}
 
 	public String getName() {

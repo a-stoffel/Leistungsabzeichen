@@ -32,7 +32,7 @@ import javax.persistence.Version;
  */
 @Entity
 @Access(AccessType.FIELD)
-public class Assessment implements Serializable {
+public class Assessment implements EntityObject, Serializable {
 
 	private static final long serialVersionUID = 0L;
 
@@ -46,7 +46,7 @@ public class Assessment implements Serializable {
 	@JoinColumn(nullable = true)
 	private Grade grade;
 
-	public Assessment() {
+	protected Assessment() {
 	}
 
 	public Grade getGrade() {

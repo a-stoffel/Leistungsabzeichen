@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
@@ -51,7 +52,7 @@ import javax.persistence.Version;
 @NamedQueries({
 	@NamedQuery(
 			name = "findParticipation",
-			query = "from Participation p where p.participant.id = :participant and p.category.name = :category and p.instrument.name = :instrument"
+			query = "from Participation p where p.participant.id = :participant and p.category.id = :category and p.instrument.id = :instrument"
 	),
 	@NamedQuery(
 			name = "findParticipations",
@@ -62,11 +63,34 @@ import javax.persistence.Version;
 			query = "from Participation p"
 	),
 	@NamedQuery(
-			name = "deleteParticipations",
+			name = "deleteAllParticipations",
 			query = "delete from Participation p"
 	)
 })
-public class Participation implements Serializable {
+public class Participation implements EntityObject, Serializable {
+
+	public static Optional<Participation> find(DataSession session, Participant participant, Category category, Instrument instrument) {
+		return session.<Participation>getNamedQuery("findParticipation")
+				.setParameter("participant", participant.getId())
+				.setParameter("category", category.getId())
+				.setParameter("instrument", instrument.getId())
+				.uniqueResultOptional();
+	}
+
+	public static List<Participation> findAll(DataSession session) {
+		return session.<Participation>getNamedQuery("findAllParticipations")
+				.list();
+	}
+
+	public static List<Participation> findAllOfParticipant(DataSession session, Participant participant) {
+		return session.<Participation>getNamedQuery("findParticipations")
+				.setParameter("participant", participant.getId())
+				.list();
+	}
+
+	public static void deleteAll(DataSession session) {
+		session.<Participation>getNamedQuery("deleteAllParticipations").executeUpdate();
+	}
 
 	private static final long serialVersionUID = 0L;
 
@@ -111,6 +135,10 @@ public class Participation implements Serializable {
 		for (Exam exam : exams) {
 			this.assessments.put(exam, new Assessment());
 		}
+	}
+	
+	public Long getId() {
+		return id;
 	}
 
 	public Participant getParticipant() {

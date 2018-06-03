@@ -19,8 +19,10 @@ package de.astoffel.laz.model;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Basic;
@@ -54,11 +56,27 @@ import org.hibernate.annotations.OnDeleteAction;
 			query = "from Exam e order by e.sort asc"
 	),
 	@NamedQuery(
-			name = "deleteExams",
+			name = "deleteAllExams",
 			query = "delete from Exam e"
 	)
 })
-public class Exam implements Serializable, Comparable<Exam> {
+public class Exam implements EntityObject, Serializable, Comparable<Exam> {
+
+	public static Optional<Exam> findByName(DataSession session, String name) {
+		return session.<Exam>getNamedQuery("findExamByName")
+				.setParameter("name", name)
+				.uniqueResultOptional();
+	}
+
+	public static List<Exam> findAll(DataSession session) {
+		return session.<Exam>getNamedQuery("findAllExams")
+				.list();
+	}
+
+	public static void deleteAll(DataSession session) {
+		session.<Exam>getNamedQuery("deleteAllExams")
+				.executeUpdate();
+	}
 
 	private static final long serialVersionUID = 0L;
 
@@ -129,8 +147,12 @@ public class Exam implements Serializable, Comparable<Exam> {
 	@Override
 	public int compareTo(Exam o) {
 		return Integer.compare(
-				this.sort == null ? 0 : sort,
+				this.sort == null ? 0 : this.sort,
 				o.sort == null ? 0 : o.sort);
+	}
+
+	public Long getId() {
+		return id;
 	}
 
 	public Integer getSort() {

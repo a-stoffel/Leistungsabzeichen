@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Andreas Stoffel
+ * Copyright (C) 2018 astoffel
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,23 +16,11 @@
  */
 package de.astoffel.laz.model;
 
-import java.nio.file.Path;
-import java.util.Optional;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.boot.Metadata;
-import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl;
-import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
-import org.hibernate.boot.registry.StandardServiceRegistry;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-
 /**
  *
  * @author astoffel
  */
-public final class DataModel implements AutoCloseable {
+public interface DataModel extends AutoCloseable {
 
 	@FunctionalInterface
 	public static interface AtomicComputeThrowsTx<R, E extends Exception> {
@@ -54,80 +42,20 @@ public final class DataModel implements AutoCloseable {
 	public static interface AtomicTx extends AtomicThrowsTx<RuntimeException> {
 
 	}
-
-	private final SessionFactory sessionFactory;
-
-	public DataModel() {
-		this(Optional.empty());
-	}
-
-	public DataModel(Path prefix) {
-		this(Optional.of(prefix));
-	}
-
-	private DataModel(Optional<Path> prefix) {
-		this.sessionFactory = open(prefix);
-	}
-
-	private static SessionFactory open(Optional<Path> prefix) {
-		BootstrapServiceRegistryBuilder bootstrapRegistryBuilder
-				= new BootstrapServiceRegistryBuilder()
-						.applyIntegrator(new FlywayIntegrator());
-		StandardServiceRegistryBuilder registryBuilder
-				= new StandardServiceRegistryBuilder(bootstrapRegistryBuilder.build())
-						.configure("de/astoffel/laz/hibernate.cfg.xml");
-		if (prefix.isPresent()) {
-			registryBuilder.applySetting("hibernate.connection.url", String.format("jdbc:h2:%s/database", prefix.get()));
-		}
-		StandardServiceRegistry standardRegistry = registryBuilder.build();
-
-		Metadata metadata = new MetadataSources(standardRegistry)
-				.getMetadataBuilder()
-				.applyImplicitNamingStrategy(ImplicitNamingStrategyJpaCompliantImpl.INSTANCE)
-				.build();
-
-		SessionFactory sessionFactory = metadata.getSessionFactoryBuilder()
-				.build();
-
-		return sessionFactory;
-	}
-
+	
 	@Override
-	public void close() {
-		this.sessionFactory.close();
-	}
+	public void close();
 
-	public DataSession getSession() {
-		return new DataSession(sessionFactory.getCurrentSession());
-	}
-
-	public void atomic(AtomicTx atomic) {
+	public default void atomic(AtomicTx atomic) {
 		atomicThrows(atomic);
 	}
 
-	public <E extends Exception> void atomicThrows(AtomicThrowsTx<E> atomic) throws E {
-		atomicComputeThrows(session -> {
-			atomic.atomic(session);
-			return null;
-		});
-	}
-
-	public <R> R atomicCompute(AtomicComputeTx<R> atomicCompute) {
+	public default <R> R atomicCompute(AtomicComputeTx<R> atomicCompute) {
 		return atomicComputeThrows(atomicCompute);
 	}
 
-	public <R, E extends Exception> R atomicComputeThrows(AtomicComputeThrowsTx<R, E> atomic) throws E {
-		Session session = sessionFactory.getCurrentSession();
-		Transaction transaction = session.beginTransaction();
-		try {
-			try {
-				return atomic.atomicCompute(new DataSession(session));
-			} finally {
-				transaction.commit();
-			}
-		} catch (Throwable th) {
-			transaction.rollback();
-			throw th;
-		}
-	}
+	public <R, E extends Exception> R atomicComputeThrows(AtomicComputeThrowsTx<R, E> atomic) throws E;
+
+	public <E extends Exception> void atomicThrows(AtomicThrowsTx<E> atomic) throws E;
+
 }

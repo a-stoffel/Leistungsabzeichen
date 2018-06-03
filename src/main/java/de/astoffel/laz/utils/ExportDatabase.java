@@ -46,7 +46,7 @@ import org.hibernate.query.Query;
 public abstract class ExportDatabase {
 
 	public static void exportDatabase(DataModel model, Path path) throws IOException {
-		try ( Writer writer = new OutputStreamWriter(Files.newOutputStream(path), StandardCharsets.UTF_8)) {
+		try (Writer writer = new OutputStreamWriter(Files.newOutputStream(path), StandardCharsets.UTF_8)) {
 			exportDatabase(model, writer);
 		}
 	}
@@ -74,10 +74,8 @@ public abstract class ExportDatabase {
 	private static Map<Participant, List<Participation>> exportParticipants(DataSession session) {
 		Map<Participant, List<Participation>> result = new HashMap<>();
 		Query<Participant> participants = session.getNamedQuery("findAllParticipants");
-		Query<Participation> participation = session.getNamedQuery("findParticipations");
 		for (Participant p : participants.list()) {
-			participation.setParameter("participant", p.getId());
-			result.put(p, participation.list());
+			result.put(p, Participation.findAllOfParticipant(session, p));
 		}
 		return result;
 	}

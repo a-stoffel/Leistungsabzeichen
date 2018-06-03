@@ -17,6 +17,7 @@
 package de.astoffel.laz.ui;
 
 import de.astoffel.laz.model.DataModel;
+import de.astoffel.laz.model.EntityObject;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -26,20 +27,20 @@ import javafx.beans.property.ObjectPropertyBase;
  *
  * @author astoffel
  */
-final class LiveObjectProperty<O, T> extends ObjectPropertyBase<T> {
+final class LiveObjectProperty<E extends EntityObject, T> extends ObjectPropertyBase<T> {
 
 	private final DataModel model;
-	private final O object;
-	private final Function<O, T> getter;
-	private final BiConsumer<O, T> setter;
+	private final E object;
+	private final Function<E, T> getter;
+	private final BiConsumer<E, T> setter;
 
-	public LiveObjectProperty(DataModel model, O object,
-			Function<O, T> getter, BiConsumer<O, T> setter) {
+	public LiveObjectProperty(DataModel model, E object,
+			Function<E, T> getter, BiConsumer<E, T> setter) {
 		this(getter.apply(object), model, object, getter, setter);
 	}
 
-	private LiveObjectProperty(T initialValue, DataModel model, O object,
-			Function<O, T> getter, BiConsumer<O, T> setter) {
+	private LiveObjectProperty(T initialValue, DataModel model, E object,
+			Function<E, T> getter, BiConsumer<E, T> setter) {
 		super(initialValue);		
 		this.model = model;
 		this.object = object;

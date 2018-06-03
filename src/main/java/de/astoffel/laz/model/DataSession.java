@@ -53,9 +53,9 @@ public final class DataSession {
 		);
 	}
 
-	public <T> EntitySet<T> findEntitySet(Class<T> type) {
+	public <E extends EntityObject> EntitySet<E> findEntitySet(Class<E> type) {
 		@SuppressWarnings("unchecked")
-		EntitySet<T> result = (EntitySet<T>) entitySets.get(type);
+		EntitySet<E> result = (EntitySet<E>) entitySets.get(type);
 		return result;
 	}
 
@@ -89,23 +89,23 @@ public final class DataSession {
 		return result;
 	}
 
-	public <T> T find(Class<T> type, long id) {
+	public <E extends EntityObject> E find(Class<E> type, long id) {
 		return session.find(type, id);
 	}
 
-	public void persist(Object object) {
-		session.persist(object);
+	public void persist(EntityObject entity) {
+		session.persist(entity);
 	}
 
-	public void update(Object object) {
-		session.update(object);
+	public void update(EntityObject entity) {
+		session.update(entity);
 	}
 
-	public void refresh(Object object) {
-		session.refresh(object);
+	public void refresh(EntityObject entity) {
+		session.refresh(entity);
 	}
 
-	public void delete(Object object) {
-		session.delete(object);;
+	public void delete(EntityObject entity) {
+		session.delete(entity);
 	}
 }

@@ -26,7 +26,6 @@ import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Version;
-import org.hibernate.query.Query;
 
 /**
  *
@@ -38,23 +37,25 @@ import org.hibernate.query.Query;
 	@NamedQuery(
 			name = "findMeta",
 			query = "from Meta m"
-	)
-	,
+	),
 	@NamedQuery(
-			name = "deleteMetas",
+			name = "deleteAllMetas",
 			query = "delete from Meta m"
 	)
 })
-public class Meta implements Serializable {
-	
-	public static Meta getInstance(DataSession session) {
-		Query<Meta> query = session.getNamedQuery("findMeta");
-		Meta result = query.uniqueResult();
+public class Meta implements EntityObject, Serializable {
+
+	public static Meta find(DataSession session) {
+		  var result = session.<Meta>getNamedQuery("findMeta").uniqueResult();
 		if (result == null) {
 			result = new Meta("", "");
 			session.persist(result);
 		}
 		return result;
+	}
+
+	public static void deleteAll(DataSession session) {
+		session.getNamedQuery("deleteAllMetas").executeUpdate();
 	}
 
 	private static final long serialVersionUID = 0L;

@@ -26,7 +26,7 @@ public class ExamSet extends EntitySet<Exam> {
 
 	public ExamSet(DataSession session) {
 		super(session, Exam.class, () -> new Exam(0, "", "", "", Map.of()),
-				"findExamByName", "findAllExams", "deleteExams");
+				Exam::findAll);
 	}
 
 }

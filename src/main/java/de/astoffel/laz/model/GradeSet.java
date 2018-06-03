@@ -24,7 +24,7 @@ public class GradeSet extends EntitySet<Grade> {
 
 	public GradeSet(DataSession session) {
 		super(session, Grade.class, () -> new Grade("", ""),
-				 "findGradeByName", "findAllGrades", "deleteGrades");
+				Grade::findAll);
 	}
 
 }

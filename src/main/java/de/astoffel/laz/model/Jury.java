@@ -17,6 +17,8 @@
 package de.astoffel.laz.model;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Optional;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Basic;
@@ -51,11 +53,26 @@ import javax.persistence.Version;
 			query = "from Jury j"
 	),
 	@NamedQuery(
-			name = "deleteJuries",
+			name = "deleteAllJuries",
 			query = "delete from Jury j"
 	)
 })
-public class Jury implements Serializable, Comparable<Jury> {
+public class Jury implements EntityObject, Serializable, Comparable<Jury> {
+
+	public static Optional<Jury> findByName(DataSession session, String name) {
+		return session.<Jury>getNamedQuery("findJuryByName")
+				.setParameter("name", name)
+				.uniqueResultOptional();
+	}
+
+	public static List<Jury> findAll(DataSession session) {
+		return session.<Jury>getNamedQuery("findAllJuries")
+				.list();
+	}
+
+	public static void deleteAll(DataSession session) {
+		session.<Jury>getNamedQuery("deleteAllJuries").executeUpdate();
+	}
 
 	private static final long serialVersionUID = 0L;
 

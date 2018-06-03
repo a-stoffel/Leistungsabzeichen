@@ -17,6 +17,7 @@
 package de.astoffel.laz.ui;
 
 import de.astoffel.laz.model.DataModel;
+import de.astoffel.laz.model.DefaultDataModel;
 import de.astoffel.laz.model.Jury;
 import java.util.List;
 import javafx.beans.property.ObjectProperty;

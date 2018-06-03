@@ -17,52 +17,38 @@
 package de.astoffel.laz.model;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
-import org.hibernate.query.Query;
 
 /**
  *
  * @author astoffel
  */
-public class EntitySet<T> {
+public class EntitySet<E extends EntityObject> {
 
 	private final DataSession session;
-	private final Class<T> type;
-	private final Supplier<T> factory;
-	private final String findByNameQuery;
-	private final String findAllQuery;
-	private final String deleteAllQuery;
+	private final Class<E> type;
+	private final Supplier<E> factory;
+	private final Function<DataSession, List<E>> findAll;
 
-	public EntitySet(DataSession session, Class<T> type, Supplier<T> factory,
-			String findByNameQuery, String findAllQuery, String deleteAllQuery) {
+	public EntitySet(DataSession session, Class<E> type, Supplier<E> factory,
+			Function<DataSession, List<E>> findAll) {
 		this.session = session;
 		this.type = type;
 		this.factory = factory;
-		this.findByNameQuery = findByNameQuery;
-		this.findAllQuery = findAllQuery;
-		this.deleteAllQuery = deleteAllQuery;
+		this.findAll = findAll;
 	}
 
-	public T create() {
+	public E create() {
 		return factory.get();
 	}
 
-	public T find(long id) {
+	public E find(long id) {
 		return session.find(type, id);
 	}
 
-	public T findByName(String name) {
-		Query<T> query = session.getNamedQuery(findByNameQuery);
-		query.setParameter("name", name);
-		return query.uniqueResult();
+	public List<E> findAll() {
+		return findAll.apply(session);
 	}
 
-	public List<T> findAll() {
-		Query<T> query = session.getNamedQuery(findAllQuery);
-		return query.list();
-	}
-
-	public void deleteAll() {
-		session.getNamedQuery(deleteAllQuery).executeUpdate();
-	}
 }

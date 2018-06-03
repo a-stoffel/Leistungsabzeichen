@@ -17,6 +17,8 @@
 package de.astoffel.laz.model;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Optional;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Basic;
@@ -51,11 +53,27 @@ import javax.persistence.Version;
 			query = "from Instrument i"
 	),
 	@NamedQuery(
-			name = "deleteInstruments",
+			name = "deleteAllInstruments",
 			query = "delete from Instrument i"
 	)
 })
-public class Instrument implements Serializable, Comparable<Instrument> {
+public class Instrument implements EntityObject, Serializable, Comparable<Instrument> {
+
+	public static Optional<Instrument> findByName(DataSession session, String name) {
+		return session.<Instrument>getNamedQuery("findInstrumentByName")
+				.setParameter("name", name)
+				.uniqueResultOptional();
+	}
+
+	public static List<Instrument> findAll(DataSession session) {
+		return session.<Instrument>getNamedQuery("findAllInstruments")
+				.list();
+	}
+
+	public static void deleteAll(DataSession session) {
+		session.<Instrument>getNamedQuery("deleteAllInstruments")
+				.executeUpdate();
+	}
 
 	private static final long serialVersionUID = 0L;
 
@@ -86,6 +104,10 @@ public class Instrument implements Serializable, Comparable<Instrument> {
 	public int compareTo(Instrument o) {
 		return (this.name == null ? "" : this.name).compareTo(
 				o.name == null ? "" : o.name);
+	}
+
+	public Long getId() {
+		return id;
 	}
 
 	public String getName() {

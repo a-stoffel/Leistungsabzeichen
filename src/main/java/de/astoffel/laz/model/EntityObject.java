@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Andreas Stoffel
+ * Copyright (C) 2018 astoffel
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,37 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.astoffel.laz;
-
-import de.astoffel.laz.model.DataModel;
-import de.astoffel.laz.model.DefaultDataModel;
-import java.nio.file.Path;
+package de.astoffel.laz.model;
 
 /**
  *
  * @author astoffel
  */
-public final class Project implements AutoCloseable {
-
-	private final Path prefix;
-	private final DataModel model;
-
-	public Project(Path prefix) {
-		this.prefix = prefix;
-		this.model = new DefaultDataModel(prefix);
-	}
-
-	public Path getPrefix() {
-		return prefix;
-	}
-
-	public DataModel getModel() {
-		return model;
-	}
-
-	@Override
-	public void close() {
-		model.close();
-	}
+public interface EntityObject {
 
 }

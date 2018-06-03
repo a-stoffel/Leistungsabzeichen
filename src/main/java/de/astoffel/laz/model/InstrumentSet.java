@@ -24,7 +24,7 @@ public final class InstrumentSet extends EntitySet<Instrument> {
 
 	public InstrumentSet(DataSession session) {
 		super(session, Instrument.class, () -> new Instrument("", ""),
-				"findInstrumentByName", "findAllInstruments", "deleteInstruments");
+				Instrument::findAll);
 	}
 
 }

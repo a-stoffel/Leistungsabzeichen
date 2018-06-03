@@ -73,7 +73,7 @@ public class MetaController {
 		} else {
 			DataModel model = project.getModel();
 			model.atomic(session -> {
-				meta = new LiveMeta(model, Meta.getInstance(session));
+				meta = new LiveMeta(model, Meta.find(session));
 			});
 			locationTextField.textProperty().bindBidirectional(meta.locationProperty());
 			eventDateTextField.textProperty().bindBidirectional(meta.eventDateProperty());

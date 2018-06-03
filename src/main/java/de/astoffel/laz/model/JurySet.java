@@ -24,7 +24,7 @@ public final class JurySet extends EntitySet<Jury> {
 
 	public JurySet(DataSession session) {
 		super(session, Jury.class, () -> new Jury(""), 
-				"findJuryByName", "findAllJuries", "deleteJuries");
+				Jury::findAll);
 	}
 
 }

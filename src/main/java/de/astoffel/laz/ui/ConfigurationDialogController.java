@@ -20,6 +20,7 @@ import de.astoffel.laz.ApplicationState;
 import de.astoffel.laz.Project;
 import de.astoffel.laz.model.Category;
 import de.astoffel.laz.model.DataModel;
+import de.astoffel.laz.model.EntityObject;
 import de.astoffel.laz.model.EntitySet;
 import de.astoffel.laz.model.Exam;
 import de.astoffel.laz.model.Grade;
@@ -146,21 +147,21 @@ public class ConfigurationDialogController {
 		}
 	}
 
-	private final class TypeNode<T extends Comparable<T>, L extends LiveEntity<T>> extends TreeItem<String> {
+	private final class TypeNode<E extends EntityObject & Comparable<E>, L extends LiveEntity<E>> extends TreeItem<String> {
 
 		private final RootNode parent;
-		private final Class<T> type;
+		private final Class<E> type;
 		private final DataModel model;
-		private final BiFunction<DataModel, T, L> liveFactory;
+		private final BiFunction<DataModel, E, L> liveFactory;
 		private final Optional<Function<L, ObjectProperty<Integer>>> sortPropertyAccessor;
 
-		TypeNode(RootNode parent, Class<T> type, String title, DataModel model,
-				BiFunction<DataModel, T, L> liveFactory) {
+		TypeNode(RootNode parent, Class<E> type, String title, DataModel model,
+				BiFunction<DataModel, E, L> liveFactory) {
 			this(parent, type, title, model, liveFactory, Optional.empty());
 		}
 
-		TypeNode(RootNode parent, Class<T> type, String title, DataModel model,
-				BiFunction<DataModel, T, L> liveFactory,
+		TypeNode(RootNode parent, Class<E> type, String title, DataModel model,
+				BiFunction<DataModel, E, L> liveFactory,
 				Optional<Function<L, ObjectProperty<Integer>>> sortPropertyAccessor) {
 			super(title);
 			this.parent = parent;
@@ -172,16 +173,16 @@ public class ConfigurationDialogController {
 		}
 
 		private void initEntityNodes() {
-			List<T> entities = model.atomicCompute(session -> {
-				List<T> result = new ArrayList<>();
-				EntitySet<T> entitySet = session.findEntitySet(type);
-				for (T entity : entitySet.findAll()) {
+			List<E> entities = model.atomicCompute(session -> {
+				List<E> result = new ArrayList<>();
+				EntitySet<E> entitySet = session.findEntitySet(type);
+				for (E entity : entitySet.findAll()) {
 					result.add(entity);
 				}
 				return result;
 			});
-			entities.sort(T::compareTo);
-			for (T entity : entities) {
+			entities.sort(E::compareTo);
+			for (E entity : entities) {
 				getChildren().add(new EntityNode<>(this, model, entity, liveFactory));
 			}
 		}
@@ -191,12 +192,12 @@ public class ConfigurationDialogController {
 		}
 
 		public void createEntity() {
-			T entity = model.atomicCompute(session -> {
-				T result = session.findEntitySet(type).create();
+			E entity = model.atomicCompute(session -> {
+				E result = session.findEntitySet(type).create();
 				session.persist(result);
 				return result;
 			});
-			EntityNode<T, L> node = new EntityNode<>(this, model, entity, liveFactory);
+			EntityNode<E, L> node = new EntityNode<>(this, model, entity, liveFactory);
 			getChildren().add(node);
 			navigationTree.getSelectionModel().select(node);
 		}
@@ -206,23 +207,23 @@ public class ConfigurationDialogController {
 			int order = 0;
 			for (TreeItem<String> child : getChildren()) {
 				@SuppressWarnings("unchecked")
-				EntityNode<T, L> node = (EntityNode<T, L>) child;
+				EntityNode<E, L> node = (EntityNode<E, L>) child;
 				sorter.apply(node.liveEntity).set(order);
 				++order;
 			}
 		}
 	}
 
-	private final class EntityNode<T extends Comparable<T>, L extends LiveEntity<T>>
+	private final class EntityNode<E extends EntityObject & Comparable<E>, L extends LiveEntity<E>>
 			extends TreeItem<String> {
 
-		private final TypeNode<T, L> parent;
+		private final TypeNode<E, L> parent;
 		private final DataModel model;
-		private final T entity;
+		private final E entity;
 		private final L liveEntity;
 
-		EntityNode(TypeNode<T, L> parent, DataModel model, T entity,
-				BiFunction<DataModel, T, L> liveFactory) {
+		EntityNode(TypeNode<E, L> parent, DataModel model, E entity,
+				BiFunction<DataModel, E, L> liveFactory) {
 			super("");
 			this.parent = parent;
 			this.model = model;
