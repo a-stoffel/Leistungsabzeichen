@@ -14,9 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.astoffel.laz.model.extern;
+package de.astoffel.laz.model.xml.v1;
 
-import de.astoffel.laz.model.Grade;
+import de.astoffel.laz.model.DataSession;
+import de.astoffel.laz.model.Instrument;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlValue;
 
@@ -24,27 +25,27 @@ import javax.xml.bind.annotation.XmlValue;
  *
  * @author astoffel
  */
-public final class ExtGrade {
+final class XmlInstrument {
 
 	@XmlAttribute(name = "name", required = true)
 	private String name;
 	@XmlValue
 	private String displayName;
 
-	private ExtGrade() {
+	private XmlInstrument() {
 	}
 
-	public ExtGrade(Grade grade) {
-		this.name = grade.getName();
-		this.displayName = grade.getDisplayName();
+	public XmlInstrument(Instrument instrument) {
+		this.name = instrument.getName();
+		this.displayName = instrument.getDisplayName();
 	}
 
-	public String getName() {
+	void create(DataSession session) {
+		session.persist(new Instrument(name, displayName));
+	}
+
+	String getName() {
 		return name;
-	}
-
-	public String getDisplayName() {
-		return displayName;
 	}
 
 }

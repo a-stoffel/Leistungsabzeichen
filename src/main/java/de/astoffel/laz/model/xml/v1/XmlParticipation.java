@@ -14,13 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.astoffel.laz.model.extern;
+package de.astoffel.laz.model.xml.v1;
 
 import de.astoffel.laz.model.Assessment;
+import de.astoffel.laz.model.Category;
+import de.astoffel.laz.model.DataSession;
 import de.astoffel.laz.model.Exam;
+import de.astoffel.laz.model.Grade;
+import de.astoffel.laz.model.Instrument;
+import de.astoffel.laz.model.Jury;
+import de.astoffel.laz.model.Participant;
 import de.astoffel.laz.model.Participation;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -30,7 +35,7 @@ import javax.xml.bind.annotation.XmlElement;
  *
  * @author astoffel
  */
-public final class ExtParticipation {
+final class XmlParticipation {
 
 	@XmlAttribute(name = "category", required = true)
 	private String category;
@@ -39,34 +44,55 @@ public final class ExtParticipation {
 	@XmlAttribute(name = "jury", required = true)
 	private String jury;
 	@XmlElement(name = "assessment")
-	private final List<ExtAssessment> assessments = new ArrayList<>();
+	private final List<XmlAssessment> assessments = new ArrayList<>();
 
-	private ExtParticipation() {
+	private XmlParticipation() {
 	}
 
-	public ExtParticipation(Participation participation) {
+	public XmlParticipation(Participation participation) {
 		this.category = participation.getCategory().getName();
 		this.instrument = participation.getInstrument().getName();
 		this.jury = participation.getJury().getName();
 		for (Map.Entry<Exam, Assessment> a : participation.getAssessments().entrySet()) {
-			assessments.add(new ExtAssessment(a.getKey(), a.getValue()));
+			assessments.add(new XmlAssessment(a.getKey(), a.getValue()));
 		}
 	}
 
-	public String getCategory() {
+	void create(DataSession session, Participant participant) {
+		  var exams = new ArrayList<Exam>();
+		for (  var a : assessments) {
+			exams.add(Exam.findByName(session, a.getExam()).get());
+		}
+		  var participation = new Participation(participant,
+				Category.findByName(session, category).get(),
+				Instrument.findByName(session, instrument).get(),
+				Jury.findByName(session, jury).get(),
+				exams);
+		for (  var a : assessments) {
+			if (a.getGrade() == null) {
+				continue;
+			}
+			  var exam = Exam.findByName(session, a.getExam()).get();
+			  var grade = Grade.findByName(session, a.getGrade()).get();
+			participation.getAssessment(exam).setGrade(grade);
+		}
+		session.persist(participation);
+	}
+
+	String getCategory() {
 		return category;
 	}
 
-	public String getInstrument() {
+	String getInstrument() {
 		return instrument;
 	}
 
-	public String getJury() {
+	String getJury() {
 		return jury;
 	}
 
-	public List<ExtAssessment> getAssessments() {
-		return Collections.unmodifiableList(assessments);
+	List<XmlAssessment> getAssessments() {
+		return assessments;
 	}
 
 }

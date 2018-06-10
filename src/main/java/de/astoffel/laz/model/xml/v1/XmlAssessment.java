@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.astoffel.laz.model.extern;
+package de.astoffel.laz.model.xml.v1;
 
 import de.astoffel.laz.model.Assessment;
 import de.astoffel.laz.model.Exam;
@@ -24,17 +24,17 @@ import javax.xml.bind.annotation.XmlAttribute;
  *
  * @author astoffel
  */
-public final class ExtAssessment {
+final class XmlAssessment {
 
 	@XmlAttribute(name = "exam", required = true)
 	private String exam;
 	@XmlAttribute(name = "grade")
 	private String grade;
 
-	private ExtAssessment() {
+	private XmlAssessment() {
 	}
 
-	public ExtAssessment(Exam exam, Assessment assessment) {
+	XmlAssessment(Exam exam, Assessment assessment) {
 		this.exam = exam.getName();
 		if (assessment.getGrade() != null) {
 			this.grade = assessment.getGrade().getName();

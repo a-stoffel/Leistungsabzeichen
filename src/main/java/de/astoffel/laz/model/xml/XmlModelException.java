@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Andreas Stoffel
+ * Copyright (C) 2018 astoffel
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,29 +14,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.astoffel.laz.model.extern;
-
-import de.astoffel.laz.model.Jury;
-import javax.xml.bind.annotation.XmlAttribute;
+package de.astoffel.laz.model.xml;
 
 /**
  *
  * @author astoffel
  */
-public final class ExtJury {
+public class XmlModelException extends RuntimeException {
 
-	@XmlAttribute(name = "name", required = true)
-	private String name;
-
-	private ExtJury() {
+	public XmlModelException() {
 	}
 
-	public ExtJury(Jury jury) {
-		this.name = jury.getName();
+	public XmlModelException(String message) {
+		super(message);
 	}
 
-	public String getName() {
-		return name;
+	public XmlModelException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public XmlModelException(Throwable cause) {
+		super(cause);
 	}
 
 }

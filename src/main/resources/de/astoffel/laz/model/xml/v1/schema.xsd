@@ -1,0 +1,211 @@
+<?xml version="1.0"?>
+<!--
+Copyright (C) 2018 astoffel
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<xs:schema version="1.0"
+		   xmlns:xs="http://www.w3.org/2001/XMLSchema"
+		   xmlns:lz="ns://astoffel.de/laz/2018/v1"
+		   elementFormDefault="qualified"
+		   targetNamespace="ns://astoffel.de/laz/2018/v1">
+	
+	<xs:element name="leistungsabzeichen" type="lz:Leistungsabzeichen">
+		
+		<xs:unique name="CategoryKey">
+			<xs:selector xpath="./lz:categories/lz:category"/>
+			<xs:field xpath="@name"/>
+		</xs:unique>
+
+		<xs:unique name="ExamKey">
+			<xs:selector xpath="./lz:exams/lz:exam"/>
+			<xs:field xpath="@name"/>
+		</xs:unique>
+
+		<xs:unique name="GradeKey">
+			<xs:selector xpath="./lz:grades/lz:grade"/>
+			<xs:field xpath="@name"/>
+		</xs:unique>
+		
+		<xs:unique name="InstrumentKey">
+			<xs:selector xpath="./lz:instruments/lz:instrument"/>
+			<xs:field xpath="@name"/>
+		</xs:unique>
+		
+		<xs:unique name="JuryKey">
+			<xs:selector xpath="./lz:juries/lz:jury"/>
+			<xs:field xpath="@name"/>
+		</xs:unique>
+		
+		<xs:keyref name="ExamDescriptionCategoryRef" refer="lz:CategoryKey">
+			<xs:selector xpath="./lz:exams/lz:exam/lz:description"/>
+			<xs:field xpath="@category"/>
+		</xs:keyref>
+
+		<xs:keyref name="ParticipationCategoryRef" refer="lz:CategoryKey">
+			<xs:selector xpath="./lz:participants/lz:participant/lz:participation"/>
+			<xs:field xpath="@category"/>
+		</xs:keyref>
+		
+		<xs:keyref name="ParticipationInstrumentRef" refer="lz:InstrumentKey">
+			<xs:selector xpath="./lz:participants/lz:participant/lz:participation"/>
+			<xs:field xpath="@instrument"/>
+		</xs:keyref>
+
+		<xs:keyref name="ParticipationJuryRef" refer="lz:JuryKey">
+			<xs:selector xpath="./lz:participants/lz:participant/lz:participation"/>
+			<xs:field xpath="@jury"/>
+		</xs:keyref>
+
+		<xs:keyref name="AssessmentExamRef" refer="lz:ExamKey">
+			<xs:selector xpath="./lz:participants/lz:participant/lz:participation/lz:assessment"/>
+			<xs:field xpath="@exam"/>
+		</xs:keyref>
+		
+		<xs:keyref name="AssessmentGradeRef" refer="lz:GradeKey">
+			<xs:selector xpath="./lz:participants/lz:participant/lz:participation/lz:assessment"/>
+			<xs:field xpath="@grade"/>
+		</xs:keyref>
+	</xs:element>
+
+	<xs:complexType name="Leistungsabzeichen">
+		<xs:sequence>
+			<xs:element name="grades">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="grade" type="lz:Grade" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="instruments">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="instrument" type="lz:Instrument" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="juries">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="jury" type="lz:Jury" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="categories">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="category" type="lz:Category" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="exams">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="exam" type="lz:Exam" minOccurs="0" maxOccurs="unbounded">
+							<xs:unique name="ExamDescriptionUnique">
+								<xs:selector xpath="./lz:description"/>
+								<xs:field xpath="@category"/>			
+							</xs:unique>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="participants">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="participant" type="lz:Participant" minOccurs="0" maxOccurs="unbounded">
+							<xs:unique name="ParticipationUnique">
+								<xs:selector xpath="./lz:participation"/>
+								<xs:field xpath="@category"/>
+								<xs:field xpath="@instrument"/>
+							</xs:unique>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="location" type="xs:string" use="required"/>
+		<xs:attribute name="when" type="xs:string" use="required"/>
+	</xs:complexType>
+	
+	<xs:complexType name="Grade">
+		<xs:simpleContent>			
+			<xs:extension base="xs:string"> 
+				<xs:attribute name="name" type="xs:string" use="required"/>		
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	
+	<xs:complexType name="Instrument">
+		<xs:simpleContent>			
+			<xs:extension base="xs:string"> 
+				<xs:attribute name="name" type="xs:string" use="required"/>		
+			</xs:extension>
+		</xs:simpleContent>		
+	</xs:complexType>
+	
+	<xs:complexType name="Jury">
+		<xs:attribute name="name" type="xs:string" use="required"/>			
+	</xs:complexType>
+	
+	<xs:complexType name="Category">
+		<xs:simpleContent>			
+			<xs:extension base="xs:string"> 
+				<xs:attribute name="name" type="xs:string" use="required"/>		
+			</xs:extension>
+		</xs:simpleContent>		
+	</xs:complexType>
+	
+	<xs:complexType name="Exam">
+		<xs:sequence>
+			<xs:element name="display" type="xs:string"/>
+			<xs:element name="short" type="xs:string"/>
+			<xs:element name="description" type="lz:ExamDescription" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="sort" type="xs:int" use="required"/>		
+		<xs:attribute name="name" type="xs:string" use="required"/>		
+						
+	</xs:complexType>
+	
+	<xs:complexType name="ExamDescription">
+		<xs:simpleContent>			
+			<xs:extension base="xs:string"> 
+				<xs:attribute name="category" type="xs:string" use="required"/>		
+			</xs:extension>
+		</xs:simpleContent>		
+	</xs:complexType>
+	
+	<xs:complexType name="Participant">
+		<xs:sequence>
+			<xs:element name="participation" type="lz:Participation" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="name" type="xs:string" use="required"/>		
+	</xs:complexType>
+	
+	<xs:complexType name="Participation">
+		<xs:sequence>
+			<xs:element name="assessment" type="lz:Assessment" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="category" type="xs:string" use="required"/>		
+		<xs:attribute name="instrument" type="xs:string" use="required"/>		
+		<xs:attribute name="jury" type="xs:string" use="required"/>		
+	</xs:complexType>
+	
+	<xs:complexType name="Assessment">
+		<xs:attribute name="exam" type="xs:string" use="required"/>		
+		<xs:attribute name="grade" type="xs:string" />		
+	</xs:complexType>
+	
+</xs:schema>

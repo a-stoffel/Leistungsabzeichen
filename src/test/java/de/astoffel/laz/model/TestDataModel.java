@@ -16,14 +16,12 @@
  */
 package de.astoffel.laz.model;
 
-import org.hibernate.Session;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
-import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl;
 import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
-import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
 /**
@@ -39,24 +37,29 @@ public final class TestDataModel implements DataModel {
 	}
 
 	private static SessionFactory open() {
-		BootstrapServiceRegistryBuilder bootstrapRegistryBuilder
+		try (  var connection = DriverManager.getConnection("jdbc:h2:mem:test_database", "sa", "")) {
+			  var bootstrapRegistryBuilder
 				= new BootstrapServiceRegistryBuilder()
-						.applyIntegrator(new FlywayIntegrator());
-		StandardServiceRegistryBuilder registryBuilder
+					.applyIntegrator(new FlywayIntegrator());
+			  var registryBuilder
 				= new StandardServiceRegistryBuilder(bootstrapRegistryBuilder.build())
-						.configure("de/astoffel/laz/hibernate.test.cfg.xml");
-		StandardServiceRegistry standardRegistry = registryBuilder
-				.build();
+					.configure("de/astoffel/laz/hibernate.test.cfg.xml");
+			  var standardRegistry = registryBuilder
+					.build();
 
-		Metadata metadata = new MetadataSources(standardRegistry)
-				.getMetadataBuilder()
-				.applyImplicitNamingStrategy(ImplicitNamingStrategyJpaCompliantImpl.INSTANCE)
-				.build();
+			  var metadata = new MetadataSources(standardRegistry)
+					.getMetadataBuilder()
+					.applyImplicitNamingStrategy(ImplicitNamingStrategyJpaCompliantImpl.INSTANCE)
+					.build();
 
-		SessionFactory sessionFactory = metadata.getSessionFactoryBuilder()
-				.build();
+			  var sessionFactory = metadata.getSessionFactoryBuilder()
+					.build();
 
-		return sessionFactory;
+			return sessionFactory;
+		} catch (SQLException ex) {
+			throw new RuntimeException(ex);
+		}
+
 	}
 
 	@Override
@@ -74,10 +77,10 @@ public final class TestDataModel implements DataModel {
 
 	@Override
 	public <R, E extends Exception> R atomicComputeThrows(AtomicComputeThrowsTx<R, E> atomic) throws E {
-		Session session = sessionFactory.getCurrentSession();
-		Transaction transaction = session.beginTransaction();
+		  var session = sessionFactory.getCurrentSession();
+		  var transaction = session.beginTransaction();
 		try {
-			R result = atomic.atomicCompute(new DataSession(session));
+			  var result = atomic.atomicCompute(new DataSession(session));
 			transaction.commit();
 			return result;
 		} catch (Throwable th) {

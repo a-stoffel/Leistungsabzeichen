@@ -14,37 +14,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.astoffel.laz.model.extern;
+package de.astoffel.laz.model.xml.v1;
 
-import de.astoffel.laz.model.Category;
+import de.astoffel.laz.model.DataSession;
+import de.astoffel.laz.model.Jury;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlValue;
 
 /**
  *
  * @author astoffel
  */
-public final class ExtCategory {
+final class XmlJury {
 
 	@XmlAttribute(name = "name", required = true)
 	private String name;
-	@XmlValue
-	private String displayName;
 
-	private ExtCategory() {
+	private XmlJury() {
 	}
 
-	public ExtCategory(Category category) {
-		this.name = category.getName();
-		this.displayName = category.getDisplayName();
+	public XmlJury(Jury jury) {
+		this.name = jury.getName();
 	}
 
-	public String getName() {
+	void create(DataSession session) {
+		session.persist(new Jury(name));
+	}
+
+	String getName() {
 		return name;
-	}
-
-	public String getDisplayName() {
-		return displayName;
 	}
 
 }

@@ -14,10 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.astoffel.laz.model.extern;
+package de.astoffel.laz.model.xml.v1;
 
+import de.astoffel.laz.model.DataSession;
 import de.astoffel.laz.model.Participant;
-import de.astoffel.laz.model.Participation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,28 +28,30 @@ import javax.xml.bind.annotation.XmlElement;
  *
  * @author astoffel
  */
-public final class ExtParticipant {
+final class XmlParticipant {
 
 	@XmlAttribute(name = "name", required = true)
 	private String name;
 	@XmlElement(name = "participation")
-	private final List<ExtParticipation> participations = new ArrayList<>();
+	private final List<XmlParticipation> participations = new ArrayList<>();
 
-	private ExtParticipant() {
+	private XmlParticipant() {
 	}
 
-	public ExtParticipant(Participant participant, List<Participation> participations) {
+	public XmlParticipant(Participant participant, List<XmlParticipation> participations) {
 		this.name = participant.getName();
-		for (Participation p : participations) {
-			this.participations.add(new ExtParticipation(p));
+		this.participations.addAll(participations);
+	}
+
+	void create(DataSession session) {
+		  var participant = new Participant(name);
+		session.persist(participant);
+		for (  var p : participations) {
+			p.create(session, participant);
 		}
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public List<ExtParticipation> getParticipations() {
+	List<XmlParticipation> getParticipations() {
 		return Collections.unmodifiableList(participations);
 	}
 

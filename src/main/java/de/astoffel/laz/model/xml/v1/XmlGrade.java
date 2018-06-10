@@ -14,31 +14,38 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.astoffel.laz.utils;
+package de.astoffel.laz.model.xml.v1;
 
-import de.astoffel.laz.model.DataModel;
-import de.astoffel.laz.model.xml.XmlModel;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import de.astoffel.laz.model.DataSession;
+import de.astoffel.laz.model.Grade;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlValue;
 
 /**
  *
  * @author astoffel
  */
-public abstract class ExportDatabase {
+final class XmlGrade {
 
-	public static void exportDatabase(DataModel model, Path path) throws IOException {
-		try (  var out = Files.newOutputStream(path)) {
-			exportDatabase(model, out);
-		}
+	@XmlAttribute(name = "name", required = true)
+	private String name;
+	@XmlValue
+	private String displayName;
+
+	private XmlGrade() {
 	}
 
-	public static void exportDatabase(DataModel model, OutputStream out) throws IOException {
-		model.atomicThrows(session -> {
-			XmlModel.create(session).write(out);
-		});
+	public XmlGrade(Grade grade) {
+		this.name = grade.getName();
+		this.displayName = grade.getDisplayName();
+	}
+
+	void create(DataSession session) {
+		session.persist(new Grade(name, displayName));
+	}
+
+	String getName() {
+		return name;
 	}
 
 }

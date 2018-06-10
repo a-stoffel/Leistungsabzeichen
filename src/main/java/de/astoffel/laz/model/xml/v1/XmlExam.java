@@ -14,14 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package de.astoffel.laz.model.extern;
+package de.astoffel.laz.model.xml.v1;
 
 import de.astoffel.laz.model.Category;
+import de.astoffel.laz.model.DataSession;
 import de.astoffel.laz.model.Exam;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlValue;
@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlValue;
  *
  * @author astoffel
  */
-public final class ExtExam {
+final class XmlExam {
 
 	@XmlAttribute(name = "sort", required = true)
 	private int sort;
@@ -41,62 +41,55 @@ public final class ExtExam {
 	@XmlElement(name = "short", required = true)
 	private String displayShortName;
 	@XmlElement(name = "description", required = true)
-	private final List<ExtDescription> descriptions = new ArrayList<>();
+	private final List<XmlExamDescription> descriptions = new ArrayList<>();
 
-	private ExtExam() {
+	private XmlExam() {
 	}
 
-	public ExtExam(Exam exam) {
+	public XmlExam(Exam exam) {
 		this.sort = exam.getSort();
 		this.name = exam.getName();
 		this.displayName = exam.getDisplayName();
 		this.displayShortName = exam.getDisplayShortName();
-		for (Map.Entry<Category, String> d : exam.getDescriptions().entrySet()) {
-			this.descriptions.add(new ExtDescription(d.getKey().getName(), d.getValue()));
+		for (  var d : exam.getDescriptions().entrySet()) {
+			this.descriptions.add(new XmlExamDescription(d.getKey().getName(), d.getValue()));
 		}
 	}
 
-	public int getSort() {
-		return sort;
+	void create(DataSession session) {
+		  var description = new HashMap<Category, String>();
+		for (  var d : descriptions) {
+			  var category = Category.findByName(session, d.category).get();
+			description.put(category, d.description);
+		}
+		session.persist(new Exam(sort, name, displayName, displayShortName, description));
 	}
 
-	public String getName() {
+	String getName() {
 		return name;
 	}
 
-	public String getDisplayName() {
-		return displayName;
-	}
-	
-	public String getDisplayShortName() {
-		return displayShortName;
+	List<XmlExamDescription> getDescriptions() {
+		return descriptions;
 	}
 
-	public List<ExtDescription> getDescriptions() {
-		return Collections.unmodifiableList(descriptions);
-	}
-
-	public static final class ExtDescription {
+	static final class XmlExamDescription {
 
 		@XmlAttribute(name = "category", required = true)
 		private String category;
 		@XmlValue
 		private String description;
 
-		private ExtDescription() {
+		private XmlExamDescription() {
 		}
 
-		public ExtDescription(String category, String description) {
+		XmlExamDescription(String category, String description) {
 			this.category = category;
 			this.description = description;
 		}
 
-		public String getCategory() {
+		String getCategory() {
 			return category;
-		}
-
-		public String getDescription() {
-			return description;
 		}
 
 	}
