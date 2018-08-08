@@ -16,8 +16,8 @@
  */
 package de.astoffel.laz;
 
-import de.astoffel.laz.model.DataModel;
-import de.astoffel.laz.model.DefaultDataModel;
+import de.astoffel.laz.model.Model;
+import de.astoffel.laz.model.transfer.DefaultTransferModel;
 import java.nio.file.Path;
 
 /**
@@ -27,18 +27,18 @@ import java.nio.file.Path;
 public final class Project implements AutoCloseable {
 
 	private final Path prefix;
-	private final DataModel model;
+	private final Model model;
 
 	public Project(Path prefix) {
 		this.prefix = prefix;
-		this.model = new DefaultDataModel(prefix);
+		this.model = new Model(new DefaultTransferModel(prefix));
 	}
 
 	public Path getPrefix() {
 		return prefix;
 	}
 
-	public DataModel getModel() {
+	public Model getModel() {
 		return model;
 	}
 

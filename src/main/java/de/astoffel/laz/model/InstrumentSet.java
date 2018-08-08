@@ -16,15 +16,34 @@
  */
 package de.astoffel.laz.model;
 
+import de.astoffel.laz.model.transfer.TransferEntityType;
+import de.astoffel.laz.model.transfer.TransferInstrument;
+import de.astoffel.laz.model.transfer.TransferModel;
+import java.util.List;
+
 /**
  *
  * @author astoffel
  */
-public final class InstrumentSet extends EntitySet<Instrument> {
+public final class InstrumentSet extends AbstractEntitySet<Instrument, TransferInstrument> {
 
-	public InstrumentSet(DataSession session) {
-		super(session, Instrument.class, () -> new Instrument("", ""),
-				Instrument::findAll);
+	InstrumentSet(TransferModel transferModel) {
+		super(transferModel, TransferEntityType.INSTRUMENT);
+	}
+
+	@Override
+	TransferInstrument createTransfer() {
+		return new TransferInstrument("", "");
+	}
+
+	@Override
+	Instrument createEntity(TransferInstrument transfer) {
+		return new Instrument(transferModel(), transfer);
+	}
+
+	@Override
+	public List<Instrument> findAll() {
+		return doFindAll(session -> session.instruments().findAll());
 	}
 
 }

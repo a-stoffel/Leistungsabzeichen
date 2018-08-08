@@ -24,7 +24,7 @@ import javafx.util.StringConverter;
  * @author astoffel
  */
 final class CategoryConverter extends StringConverter<Category> {
-	
+
 	public CategoryConverter() {
 	}
 
@@ -37,5 +37,5 @@ final class CategoryConverter extends StringConverter<Category> {
 	public Category fromString(String string) {
 		throw new UnsupportedOperationException();
 	}
-	
+
 }

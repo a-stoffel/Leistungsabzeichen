@@ -18,8 +18,8 @@ package de.astoffel.laz.ui;
 
 import de.astoffel.laz.ApplicationState;
 import de.astoffel.laz.Project;
-import de.astoffel.laz.model.DataModel;
 import de.astoffel.laz.model.Meta;
+import de.astoffel.laz.model.Model;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.WeakChangeListener;
 import javafx.fxml.FXML;
@@ -37,7 +37,7 @@ public class MetaController {
 
 	private ChangeListener<Project> projectListener;
 
-	private LiveMeta meta;
+	private Meta meta;
 
 	@FXML
 	private TextField locationTextField;
@@ -56,14 +56,18 @@ public class MetaController {
 		projectListener = (source, oldValue, newValue) -> {
 			reloadData();
 		};
-		application.projectProperty().addListener(new WeakChangeListener<>(projectListener));
-		projectListener.changed(application.projectProperty(), null, application.projectProperty().get());
+		application.projectProperty()
+				.addListener(new WeakChangeListener<>(projectListener));
+		projectListener.changed(application.projectProperty(), null, application
+				.projectProperty().get());
 	}
 
 	private void reloadData() {
 		if (meta != null) {
-			locationTextField.textProperty().unbindBidirectional(meta.locationProperty());
-			eventDateTextField.textProperty().unbindBidirectional(meta.eventDateProperty());
+			locationTextField.textProperty().unbindBidirectional(meta
+					.locationProperty());
+			eventDateTextField.textProperty().unbindBidirectional(meta
+					.eventDateProperty());
 			meta = null;
 		}
 		Project project = application.projectProperty().get();
@@ -71,12 +75,12 @@ public class MetaController {
 			locationTextField.setDisable(true);
 			eventDateTextField.setDisable(true);
 		} else {
-			DataModel model = project.getModel();
-			model.atomic(session -> {
-				meta = new LiveMeta(model, Meta.find(session));
-			});
-			locationTextField.textProperty().bindBidirectional(meta.locationProperty());
-			eventDateTextField.textProperty().bindBidirectional(meta.eventDateProperty());
+			Model model = project.getModel();
+			meta = model.metas().get();
+			locationTextField.textProperty().bindBidirectional(meta
+					.locationProperty());
+			eventDateTextField.textProperty().bindBidirectional(meta
+					.eventDateProperty());
 			locationTextField.setDisable(false);
 			eventDateTextField.setDisable(false);
 		}

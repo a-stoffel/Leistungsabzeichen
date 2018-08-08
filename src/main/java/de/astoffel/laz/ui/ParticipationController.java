@@ -19,12 +19,11 @@ package de.astoffel.laz.ui;
 import de.astoffel.laz.ApplicationState;
 import de.astoffel.laz.Project;
 import de.astoffel.laz.model.Category;
-import de.astoffel.laz.model.DataModel;
-import de.astoffel.laz.model.DataSession;
 import de.astoffel.laz.model.Exam;
 import de.astoffel.laz.model.Grade;
 import de.astoffel.laz.model.Instrument;
 import de.astoffel.laz.model.Jury;
+import de.astoffel.laz.model.Model;
 import de.astoffel.laz.model.Participation;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +47,6 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
 import javax.inject.Inject;
-import org.hibernate.query.Query;
 
 /**
  *
@@ -59,31 +57,31 @@ public class ParticipationController {
 	@Inject
 	private ApplicationState application;
 
-	private final ListProperty<LiveParticipation> participations
+	private final ListProperty<Participation> participations
 			= new SimpleListProperty<>(FXCollections.observableArrayList());
 	private final ListProperty<Grade> grades
 			= new SimpleListProperty<>(FXCollections.observableArrayList());
 
-	private final ObjectProperty<Predicate<LiveParticipation>> predicate
+	private final ObjectProperty<Predicate<Participation>> predicate
 			= new SimpleObjectProperty<>();
 
 	private final List<ExamColumns> exams = new ArrayList<>();
 
-	private FilteredList<LiveParticipation> filteredParticipations;
+	private FilteredList<Participation> filteredParticipations;
 
 	private ChangeListener<Project> projectListener;
 
 	@FXML
-	private TableView<LiveParticipation> table;
+	private TableView<Participation> table;
 
 	@FXML
-	private TableColumn<LiveParticipation, String> participantColumn;
+	private TableColumn<Participation, String> participantColumn;
 	@FXML
-	private TableColumn<LiveParticipation, Category> categoryColumn;
+	private TableColumn<Participation, Category> categoryColumn;
 	@FXML
-	private TableColumn<LiveParticipation, Instrument> instrumentColumn;
+	private TableColumn<Participation, Instrument> instrumentColumn;
 	@FXML
-	private TableColumn<LiveParticipation, Jury> juryColumn;
+	private TableColumn<Participation, Jury> juryColumn;
 
 	@FXML
 	public void initialize() {
@@ -97,26 +95,28 @@ public class ParticipationController {
 		projectListener = (source, oldValue, newValue) -> {
 			reloadData();
 		};
-		application.projectProperty().addListener(new WeakChangeListener<>(projectListener));
-		projectListener.changed(application.projectProperty(), null, application.projectProperty().get());
+		application.projectProperty()
+				.addListener(new WeakChangeListener<>(projectListener));
+		projectListener.changed(application.projectProperty(), null, application
+				.projectProperty().get());
 
 		filteredParticipations = new FilteredList<>(participations);
 		filteredParticipations.predicateProperty().bind(predicate);
 
 		participantColumn.setCellValueFactory(param -> {
-			return param.getValue().getParticipant();
+			return param.getValue().getParticipant().nameProperty();
 		});
 		participantColumn.setCellFactory(param -> {
 			return new TextFieldTableCell<>(new DefaultStringConverter());
 		});
 		categoryColumn.setCellValueFactory(param -> {
-			return param.getValue().getCategory();
+			return param.getValue().categoryProperty();
 		});
 		categoryColumn.setCellFactory(param -> {
 			return new TextFieldTableCell<>(new CategoryConverter());
 		});
 		instrumentColumn.setCellValueFactory(param -> {
-			return param.getValue().getInstrument();
+			return param.getValue().instrumentProperty();
 		});
 		instrumentColumn.setCellFactory(param -> {
 			return new TextFieldTableCell<>(new StringConverter<Instrument>() {
@@ -132,19 +132,19 @@ public class ParticipationController {
 			});
 		});
 		juryColumn.setCellValueFactory(param -> {
-			return param.getValue().getJury();
+			return param.getValue().juryProperty();
 		});
 		juryColumn.setCellFactory(param -> {
 			return new TextFieldTableCell<>(new JuryConverter());
 		});
 
 		filteredParticipations.sort((a, b) -> {
-			return a.getParticipant().get().compareTo(b.getParticipant().get());
+			return a.getParticipant().compareTo(b.getParticipant());
 		});
 
-		SortedList<LiveParticipation> sortedParticipations = new SortedList<>(filteredParticipations);
-		sortedParticipations.comparatorProperty().bind(table.comparatorProperty());
-
+		SortedList<Participation> sortedParticipations = new SortedList<>(filteredParticipations);
+		sortedParticipations.comparatorProperty()
+				.bind(table.comparatorProperty());
 		table.setItems(sortedParticipations);
 	}
 
@@ -159,60 +159,49 @@ public class ParticipationController {
 			grades.clear();
 			table.setDisable(true);
 		} else {
-			DataModel model = project.getModel();
-			model.atomic(session -> {
-				participations.setAll(loadParticipations(model, session));
-				grades.setAll(loadGrades(session));
-				exams.addAll(loadExams(session));
-				for (ExamColumns e : exams) {
-					table.getColumns().add(e.gradeColumn);
-				}
-				table.setDisable(false);
-			});
+			Model model = project.getModel();
+			participations.setAll(model.participations().findAll());
+			grades.setAll(loadGrades(model));
+			exams.addAll(loadExams(model));
+			for (ExamColumns e : exams) {
+				table.getColumns().add(e.gradeColumn);
+			}
+			table.setDisable(false);
 		}
 	}
 
-	private static List<LiveParticipation> loadParticipations(DataModel model, DataSession session) {
-		Query<Participation> query = session.getNamedQuery("findAllParticipations");
-		return query.stream()
-				.map(p -> new LiveParticipation(model, p))
-				.collect(Collectors.toList());
-	}
-
-	private static List<Grade> loadGrades(DataSession session) {
-		Query<Grade> query = session.getNamedQuery("findAllGrades");
+	private static List<Grade> loadGrades(Model model) {
 		List<Grade> result = new ArrayList<>();
 		result.add(null);
-		result.addAll(query.list());
+		result.addAll(model.grades().findAll());
 		return result;
 	}
 
-	private List<ExamColumns> loadExams(DataSession session) {
-		Query<Exam> query = session.getNamedQuery("findAllExams");
-		return query.stream()
+	private List<ExamColumns> loadExams(Model model) {
+		return model.exams().findAll().stream()
 				.map(ExamColumns::new)
 				.collect(Collectors.toList());
 	}
 
-	ObjectProperty<Predicate<LiveParticipation>> predicateProperty() {
+	ObjectProperty<Predicate<Participation>> predicateProperty() {
 		return predicate;
 	}
 
-	ObservableList<LiveParticipation> participationsProperty() {
+	ObservableList<Participation> participationsProperty() {
 		return filteredParticipations;
 	}
 
 	private final class ExamColumns {
 
-		private final TableColumn<LiveParticipation, Grade> gradeColumn;
+		private final TableColumn<Participation, Grade> gradeColumn;
 
 		public ExamColumns(Exam exam) {
 			this.gradeColumn = new TableColumn<>(exam.getName() + " - Note");
 			gradeColumn.setCellValueFactory(param -> {
-				return param.getValue().getAssessment(exam).gradeProperty();
+				return param.getValue().assessmentOf(exam).gradeProperty();
 			});
 			gradeColumn.setCellFactory(param -> {
-				ComboBoxTableCell<LiveParticipation, Grade> cell = new ComboBoxTableCell<>(new StringConverter<Grade>() {
+				ComboBoxTableCell<Participation, Grade> cell = new ComboBoxTableCell<>(new StringConverter<Grade>() {
 					@Override
 					public String toString(Grade object) {
 						return object == null ? "" : object.getName();

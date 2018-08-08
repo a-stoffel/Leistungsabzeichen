@@ -16,9 +16,10 @@
  */
 package de.astoffel.laz.model.xml.v1;
 
-import de.astoffel.laz.model.Category;
-import de.astoffel.laz.model.DataSession;
-import de.astoffel.laz.model.Exam;
+import de.astoffel.laz.model.transfer.TransferCategory;
+import de.astoffel.laz.model.transfer.TransferExam;
+import de.astoffel.laz.model.transfer.TransferException;
+import de.astoffel.laz.model.transfer.TransferSession;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,23 +47,25 @@ final class XmlExam {
 	private XmlExam() {
 	}
 
-	public XmlExam(Exam exam) {
+	public XmlExam(TransferExam exam) {
 		this.sort = exam.getSort();
 		this.name = exam.getName();
 		this.displayName = exam.getDisplayName();
 		this.displayShortName = exam.getDisplayShortName();
-		for (  var d : exam.getDescriptions().entrySet()) {
-			this.descriptions.add(new XmlExamDescription(d.getKey().getName(), d.getValue()));
+		for (var d : exam.getDescriptions().entrySet()) {
+			this.descriptions.add(new XmlExamDescription(d.getKey().getName(), d
+					.getValue()));
 		}
 	}
 
-	void create(DataSession session) {
-		  var description = new HashMap<Category, String>();
-		for (  var d : descriptions) {
-			  var category = Category.findByName(session, d.category).get();
+	void create(TransferSession session) throws TransferException {
+		var description = new HashMap<TransferCategory, String>();
+		for (var d : descriptions) {
+			var category = session.categories().findByName(d.category).get();
 			description.put(category, d.description);
 		}
-		session.persist(new Exam(sort, name, displayName, displayShortName, description));
+		session.exams()
+				.persist(new TransferExam(sort, name, displayName, displayShortName, description));
 	}
 
 	String getName() {

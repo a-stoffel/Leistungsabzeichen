@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Andreas Stoffel
+ * Copyright (C) 2018 astoffel
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,114 +16,47 @@
  */
 package de.astoffel.laz.model;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Optional;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.persistence.Version;
+import de.astoffel.laz.model.transfer.TransferEntityType;
+import de.astoffel.laz.model.transfer.TransferGrade;
+import de.astoffel.laz.model.transfer.TransferModel;
+import javafx.beans.property.Property;
 
 /**
  *
  * @author astoffel
  */
-@Entity
-@Access(AccessType.FIELD)
-@Table(uniqueConstraints = {
-	@UniqueConstraint(columnNames = {
-		"name"
-	})}
-)
-@NamedQueries({
-	@NamedQuery(
-			name = "findGradeByName",
-			query = "from Grade g where g.name = :name"
-	),
-	@NamedQuery(
-			name = "findAllGrades",
-			query = "from Grade g"
-	),
-	@NamedQuery(
-			name = "deleteAllGrades",
-			query = "delete from Grade g"
-	)
-})
-public class Grade implements EntityObject, Serializable, Comparable<Grade> {
+public final class Grade extends AbstractEntity<TransferGrade> implements NamedEntity, Comparable<Grade> {
 
-	public static Optional<Grade> findByName(DataSession session, String name) {
-		return session.<Grade>getNamedQuery("findGradeByName")
-				.setParameter("name", name)
-				.uniqueResultOptional();
-	}
+	private final Property<String> name;
+	private final Property<String> displayName;
 
-	public static List<Grade> findAll(DataSession session) {
-		return session.<Grade>getNamedQuery("findAllGrades")
-				.list();
-	}
-
-	public static void deleteAll(DataSession session) {
-		session.<Grade>getNamedQuery("deleteAllGrades")
-				.executeUpdate();
-	}
-
-	private static final long serialVersionUID = 0L;
-
-	@Id
-	@GeneratedValue
-	private Long id;
-
-	@Version
-	private Long version;
-
-	@Basic(optional = false)
-	@Column(nullable = false)
-	private String name;
-
-	@Basic(optional = false)
-	@Column(nullable = false)
-	private String displayName;
-
-	protected Grade() {
-	}
-
-	public Grade(String name, String displayName) {
-		this.name = name;
-		this.displayName = displayName;
+	Grade(TransferModel transferModel, TransferGrade transfer) {
+		super(transferModel, TransferEntityType.GRADE, transfer);
+		this.name = createProperty(TransferGrade::getName,
+				TransferGrade::setName);
+		this.displayName = createProperty(TransferGrade::getDisplayName,
+				TransferGrade::setDisplayName);
 	}
 
 	@Override
-	public int compareTo(Grade o) {
-		return (this.name == null ? "" : this.name).compareTo(
-				o.name == null ? "" : o.name);
+	public int compareTo(Grade other) {
+		return name.getValue().compareTo(other.name.getValue());
 	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public String getName() {
+	@Override
+	@PropertyDescriptor(name = "Name")
+	public Property<String> nameProperty() {
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	@PropertyDescriptor(name = "Name")
+	public String getName() {
+		return name.getValue();
 	}
 
-	public String getDisplayName() {
+	@PropertyDescriptor(name = "Display Name")
+	public Property<String> displayNameProperty() {
 		return displayName;
-	}
-
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
 	}
 
 }

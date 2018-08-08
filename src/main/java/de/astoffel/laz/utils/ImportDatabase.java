@@ -16,16 +16,8 @@
  */
 package de.astoffel.laz.utils;
 
-import de.astoffel.laz.model.Category;
-import de.astoffel.laz.model.DataModel;
-import de.astoffel.laz.model.DataSession;
-import de.astoffel.laz.model.Exam;
-import de.astoffel.laz.model.Grade;
-import de.astoffel.laz.model.Instrument;
-import de.astoffel.laz.model.Jury;
-import de.astoffel.laz.model.Meta;
-import de.astoffel.laz.model.Participant;
-import de.astoffel.laz.model.Participation;
+import de.astoffel.laz.model.Model;
+import de.astoffel.laz.model.transfer.TransferException;
 import de.astoffel.laz.model.xml.XmlModel;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -40,29 +32,20 @@ import java.nio.file.Path;
  */
 public abstract class ImportDatabase {
 
-	public static void importDatabase(DataModel model, Path path) throws IOException {
-		try (Reader reader = new InputStreamReader(
+	public static void importDatabase(Model model, Path path) throws IOException, TransferException {
+		try ( Reader reader = new InputStreamReader(
 				Files.newInputStream(path), StandardCharsets.UTF_8)) {
 			importDatabase(model, reader);
+			model.clear();
 		}
 	}
 
-	public static void importDatabase(DataModel model, Reader reader) throws IOException {
-		model.atomicThrows(session -> {
-			clearDatabase(session);
-			XmlModel.read(reader).populate(session);
+	public static void importDatabase(Model model, Reader reader)
+			throws IOException, TransferException {
+		var importedModel = XmlModel.read(reader);
+		model.transferModel().execute(session -> {
+			importedModel.populate(session);
 		});
-	}
-
-	private static void clearDatabase(DataSession session) {
-		Participation.deleteAll(session);
-		Participant.deleteAll(session);
-		Jury.deleteAll(session);
-		Exam.deleteAll(session);
-		Category.deleteAll(session);
-		Instrument.deleteAll(session);
-		Grade.deleteAll(session);
-		Meta.deleteAll(session);
 	}
 
 }

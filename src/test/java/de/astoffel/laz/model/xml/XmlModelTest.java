@@ -16,12 +16,16 @@
  */
 package de.astoffel.laz.model.xml;
 
-import de.astoffel.laz.model.TestDataModel;
+import de.astoffel.laz.model.transfer.TestTransferModel;
+import de.astoffel.laz.model.transfer.TransferException;
 import de.astoffel.laz.test.TestModelGenerator;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -35,7 +39,7 @@ import static org.junit.Assert.*;
  */
 public class XmlModelTest {
 
-	private TestDataModel model;
+	private TestTransferModel model;
 	private TestModelGenerator generator;
 
 	public XmlModelTest() {
@@ -50,13 +54,13 @@ public class XmlModelTest {
 	}
 
 	@Before
-	public void setUp() {
-		model = new TestDataModel();
-		model.atomic(session -> generator = new TestModelGenerator(session));
+	public void setUp() throws TransferException {
+		model = new TestTransferModel();
+		model.execute(session -> generator = new TestModelGenerator(session));
 	}
 
 	@After
-	public void tearDown() {
+	public void tearDown() throws TransferException {
 		this.generator = null;
 		if (model != null) {
 			model.close();
@@ -68,10 +72,10 @@ public class XmlModelTest {
 	 * Test of create method, of class XmlModel.
 	 */
 	@Test
-	public void testCreate() {
+	public void testCreate() throws TransferException {
 		System.out.println("create");
-		model.atomic(session -> {
-			  var result = XmlModel.create(session);
+		model.execute(session -> {
+			var result = XmlModel.create(session);
 			assertNotNull(result);
 		});
 	}
@@ -82,16 +86,20 @@ public class XmlModelTest {
 	@Test
 	public void testRead_InputStream() throws Exception {
 		System.out.println("read");
-		model.atomicThrows(session -> {
-			  var xmlModel = XmlModel.create(session);
-			  var stream = new ByteArrayOutputStream();
-			try (stream) {
-				xmlModel.write(stream);
-			}
-			  var xmlBytes = stream.toByteArray();
-			try (  var in = new ByteArrayInputStream(xmlBytes)) {
-				  var model = XmlModel.read(in);
-				assertNotNull(model);
+		model.execute(session -> {
+			try {
+				var xmlModel = XmlModel.create(session);
+				var stream = new ByteArrayOutputStream();
+				try (stream) {
+					xmlModel.write(stream);
+				}
+				var xmlBytes = stream.toByteArray();
+				try ( var in = new ByteArrayInputStream(xmlBytes)) {
+					var model = XmlModel.read(in);
+					assertNotNull(model);
+				}
+			} catch (IOException ex) {
+				throw new TransferException(ex);
 			}
 		});
 	}
@@ -102,16 +110,20 @@ public class XmlModelTest {
 	@Test
 	public void testRead_Reader() throws Exception {
 		System.out.println("read");
-		model.atomicThrows(session -> {
-			  var xmlModel = XmlModel.create(session);
-			  var writer = new StringWriter();
-			try (writer) {
-				xmlModel.write(writer);
-			}
-			  var xmlString = writer.toString();
-			try (  var reader = new StringReader(xmlString)) {
-				  var model = XmlModel.read(reader);
-				assertNotNull(model);
+		model.execute(session -> {
+			try {
+				var xmlModel = XmlModel.create(session);
+				var writer = new StringWriter();
+				try (writer) {
+					xmlModel.write(writer);
+				}
+				var xmlString = writer.toString();
+				try ( var reader = new StringReader(xmlString)) {
+					var model = XmlModel.read(reader);
+					assertNotNull(model);
+				}
+			} catch (IOException ex) {
+				throw new TransferException(ex);
 			}
 		});
 	}
@@ -122,14 +134,18 @@ public class XmlModelTest {
 	@Test
 	public void testWrite_OutputStream() throws Exception {
 		System.out.println("write");
-		model.atomicThrows(session -> {
-			  var xmlModel = XmlModel.create(session);
-			  var stream = new ByteArrayOutputStream();
-			try (stream) {
-				xmlModel.write(stream);
+		model.execute(session -> {
+			try {
+				var xmlModel = XmlModel.create(session);
+				var stream = new ByteArrayOutputStream();
+				try (stream) {
+					xmlModel.write(stream);
+				}
+				var xmlBytes = stream.toByteArray();
+				assertTrue(xmlBytes.length > 0);
+			} catch (IOException ex) {
+				throw new TransferException(ex);
 			}
-			  var xmlBytes = stream.toByteArray();
-			assertTrue(xmlBytes.length > 0);
 		});
 	}
 
@@ -139,14 +155,18 @@ public class XmlModelTest {
 	@Test
 	public void testWrite_Writer() throws Exception {
 		System.out.println("write");
-		model.atomicThrows(session -> {
-			  var xmlModel = XmlModel.create(session);
-			  var writer = new StringWriter();
-			try (writer) {
-				xmlModel.write(writer);
+		model.execute(session -> {
+			try {
+				var xmlModel = XmlModel.create(session);
+				var writer = new StringWriter();
+				try (writer) {
+					xmlModel.write(writer);
+				}
+				var xmlString = writer.toString();
+				assertFalse(xmlString.isEmpty());
+			} catch (IOException ex) {
+				throw new TransferException(ex);
 			}
-			  var xmlString = writer.toString();
-			assertFalse(xmlString.isEmpty());
 		});
 	}
 
@@ -154,14 +174,12 @@ public class XmlModelTest {
 	 * Test of importInto method, of class XmlModel.
 	 */
 	@Test
-	public void testImportInto() {
+	public void testImportInto() throws TransferException {
 		System.out.println("importInto");
-		  var xmlModel = model.atomicComputeThrows(XmlModel::create);
+		var xmlModel = model.compute(XmlModel::create);
 		model.close();
-		model = new TestDataModel();
-		model.atomic(session -> {
-			xmlModel.populate(session);
-		});
+		model = new TestTransferModel();
+		model.execute(xmlModel::populate);
 	}
 
 }

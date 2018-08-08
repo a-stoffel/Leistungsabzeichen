@@ -21,6 +21,7 @@ import de.astoffel.laz.FXMLLoaderProducer;
 import de.astoffel.laz.Main;
 import de.astoffel.laz.Project;
 import de.astoffel.laz.model.Participation;
+import de.astoffel.laz.model.transfer.TransferException;
 import de.astoffel.laz.utils.CertificateGenerator;
 import de.astoffel.laz.utils.ExportDatabase;
 import de.astoffel.laz.utils.ImportDatabase;
@@ -55,7 +56,8 @@ import org.controlsfx.control.TaskProgressView;
  */
 public class MainController {
 
-	private static final Logger LOG = Logger.getLogger(MainController.class.getName());
+	private static final Logger LOG = Logger.getLogger(MainController.class
+			.getName());
 
 	private static final String PREF_LAST_DIR = "last.directory";
 
@@ -85,20 +87,27 @@ public class MainController {
 
 	@FXML
 	public void initialize() {
-		preferences = Preferences.userNodeForPackage(Main.class).node("settings");
+		preferences = Preferences.userNodeForPackage(Main.class)
+				.node("settings");
 
-		openConfigurationMenuItem.disableProperty().bind(application.projectProperty().isNull());
-		exportMenuItem.disableProperty().bind(application.projectProperty().isNull());
-		importMenuItem.disableProperty().bind(application.projectProperty().isNull());
-		createCertificateMenuItem.disableProperty().bind(application.projectProperty().isNull());
+		openConfigurationMenuItem.disableProperty().bind(application
+				.projectProperty().isNull());
+		exportMenuItem.disableProperty().bind(application.projectProperty()
+				.isNull());
+		importMenuItem.disableProperty().bind(application.projectProperty()
+				.isNull());
+		createCertificateMenuItem.disableProperty().bind(application
+				.projectProperty().isNull());
 
-		participationController.predicateProperty().bind(filterController.predicateProperty());
+		participationController.predicateProperty().bind(filterController
+				.predicateProperty());
 	}
 
 	@FXML
 	public void open() {
 		DirectoryChooser chooser = new DirectoryChooser();
-		File initialDirectory = FileSystemView.getFileSystemView().getDefaultDirectory();
+		File initialDirectory = FileSystemView.getFileSystemView()
+				.getDefaultDirectory();
 		String lastDirectory = preferences.get(PREF_LAST_DIR, "");
 		if (!lastDirectory.isEmpty()) {
 			initialDirectory = new File(lastDirectory);
@@ -119,7 +128,8 @@ public class MainController {
 	public void openConfiguration() {
 		try {
 			FXMLLoader fxmlLoader = fxmlLoaderProducer.produceFXMLLoader();
-			fxmlLoader.setLocation(ConfigurationDialogController.class.getResource("ConfigurationDialog.fxml"));
+			fxmlLoader.setLocation(ConfigurationDialogController.class
+					.getResource("ConfigurationDialog.fxml"));
 			Parent root = fxmlLoader.load();
 			Stage dialog = new Stage();
 			dialog.setScene(new Scene(root));
@@ -149,8 +159,9 @@ public class MainController {
 			return;
 		}
 		try {
-			ImportDatabase.importDatabase(project.getModel(), selection.toPath());
-		} catch (IOException ex) {
+			ImportDatabase
+					.importDatabase(project.getModel(), selection.toPath());
+		} catch (IOException | TransferException ex) {
 			LOG.log(Level.SEVERE, "importing data failed", ex);
 		}
 		application.broadcast(ApplicationState.Message.RELOAD);
@@ -173,8 +184,9 @@ public class MainController {
 			return;
 		}
 		try {
-			ExportDatabase.exportDatabase(project.getModel(), selection.toPath());
-		} catch (IOException ex) {
+			ExportDatabase
+					.exportDatabase(project.getModel(), selection.toPath());
+		} catch (IOException | TransferException ex) {
 			LOG.log(Level.SEVERE, "exporting data failed", ex);
 		}
 		application.broadcast(ApplicationState.Message.RELOAD);
@@ -201,7 +213,9 @@ public class MainController {
 
 			@Override
 			protected Void call() throws Exception {
-				CertificateGenerator.generate(project, templatePath, participations, project.getModel());
+				CertificateGenerator
+						.generate(project, templatePath, participations, project
+								.getModel());
 				return null;
 			}
 		};
@@ -209,19 +223,22 @@ public class MainController {
 	}
 
 	private List<Participation> listCertificateParticipations() {
-		List<Participation> participations = participationController.participationsProperty().stream()
+		List<Participation> participations = participationController
+				.participationsProperty().stream()
 				.filter(p -> p.hasParticipated())
-				.map(LiveParticipation::getParticipation)
 				.sorted((a, b) -> {
-					int comp = a.getJury().getName().compareTo(b.getJury().getName());
+					int comp = a.getJury().getName().compareTo(b.getJury()
+							.getName());
 					if (comp != 0) {
 						return 0;
 					}
-					comp = a.getCategory().getName().compareTo(b.getCategory().getName());
+					comp = a.getCategory().getName().compareTo(b.getCategory()
+							.getName());
 					if (comp != 0) {
 						return 0;
 					}
-					return a.getParticipant().getName().compareTo(b.getParticipant().getName());
+					return a.getParticipant().getName().compareTo(b
+							.getParticipant().getName());
 				})
 				.collect(Collectors.toList());
 		return participations;
@@ -254,15 +271,16 @@ public class MainController {
 		TaskProgressView<Task<Void>> progressView = new TaskProgressView<>();
 		progressView.getTasks().add(generatorTask);
 		Stage dialog = new Stage();
-		generatorTask.stateProperty().addListener((source, oldValue, newValue) -> {
-			switch (newValue) {
-				case CANCELLED:
-				case FAILED:
-				case SUCCEEDED:
-					dialog.close();
-					break;
-			}
-		});
+		generatorTask.stateProperty()
+				.addListener((source, oldValue, newValue) -> {
+					switch (newValue) {
+						case CANCELLED:
+						case FAILED:
+						case SUCCEEDED:
+							dialog.close();
+							break;
+					}
+				});
 		dialog.setScene(new Scene(progressView));
 		dialog.sizeToScene();
 		dialog.initOwner(view.getScene().getWindow());

@@ -19,11 +19,10 @@ package de.astoffel.laz.ui;
 import de.astoffel.laz.ApplicationState;
 import de.astoffel.laz.Project;
 import de.astoffel.laz.model.Category;
-import de.astoffel.laz.model.DataSession;
 import de.astoffel.laz.model.Jury;
+import de.astoffel.laz.model.Model;
 import de.astoffel.laz.model.Participation;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javafx.beans.property.ListProperty;
@@ -39,7 +38,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.util.StringConverter;
 import javax.inject.Inject;
-import org.hibernate.query.Query;
 
 /**
  *
@@ -47,7 +45,7 @@ import org.hibernate.query.Query;
  */
 public final class FilterController {
 
-	private static final Predicate<LiveParticipation> PREDICATE_NONE = p -> true;
+	private static final Predicate<Participation> PREDICATE_NONE = p -> true;
 
 	@Inject
 	private ApplicationState application;
@@ -60,7 +58,7 @@ public final class FilterController {
 	private final ListProperty<SelectableEntity<Jury>> juries = new SimpleListProperty<>(
 			FXCollections.observableArrayList());
 
-	private final ObjectProperty<Predicate<LiveParticipation>> predicate
+	private final ObjectProperty<Predicate<Participation>> predicate
 			= new SimpleObjectProperty<>(PREDICATE_NONE);
 
 	@FXML
@@ -83,35 +81,39 @@ public final class FilterController {
 		projectListener = (source, oldValue, newValue) -> {
 			reloadData();
 		};
-		application.projectProperty().addListener(new WeakChangeListener<>(projectListener));
-		projectListener.changed(application.projectProperty(), null, application.projectProperty().get());
+		application.projectProperty()
+				.addListener(new WeakChangeListener<>(projectListener));
+		projectListener.changed(application.projectProperty(), null, application
+				.projectProperty().get());
 
-		categoryFilter.setCellFactory(CheckBoxListCell.forListView(SelectableEntity::selectedProperty,
-				new StringConverter<SelectableEntity<Category>>() {
-			@Override
-			public String toString(SelectableEntity<Category> object) {
-				return object.getEntity().getName();
-			}
+		categoryFilter.setCellFactory(CheckBoxListCell
+				.forListView(SelectableEntity::selectedProperty,
+						new StringConverter<SelectableEntity<Category>>() {
+					@Override
+					public String toString(SelectableEntity<Category> object) {
+						return object.getEntity().getName();
+					}
 
-			@Override
-			public SelectableEntity<Category> fromString(String string) {
-				throw new UnsupportedOperationException();
-			}
-		}));
+					@Override
+					public SelectableEntity<Category> fromString(String string) {
+						throw new UnsupportedOperationException();
+					}
+				}));
 		categoryFilter.itemsProperty().bind(categories);
 
-		juryFilter.setCellFactory(CheckBoxListCell.forListView(SelectableEntity::selectedProperty,
-				new StringConverter<SelectableEntity<Jury>>() {
-			@Override
-			public String toString(SelectableEntity<Jury> object) {
-				return object.getEntity().getName();
-			}
+		juryFilter.setCellFactory(CheckBoxListCell
+				.forListView(SelectableEntity::selectedProperty,
+						new StringConverter<SelectableEntity<Jury>>() {
+					@Override
+					public String toString(SelectableEntity<Jury> object) {
+						return object.getEntity().getName();
+					}
 
-			@Override
-			public SelectableEntity<Jury> fromString(String string) {
-				throw new UnsupportedOperationException();
-			}
-		}));
+					@Override
+					public SelectableEntity<Jury> fromString(String string) {
+						throw new UnsupportedOperationException();
+					}
+				}));
 		juryFilter.itemsProperty().bind(juries);
 	}
 
@@ -130,32 +132,28 @@ public final class FilterController {
 			categoryFilter.setDisable(true);
 			juryFilter.setDisable(true);
 		} else {
-			project.getModel().atomic(session -> {
-				categories.setAll(loadCategories(session));
-				for (SelectableEntity<Category> c : categories) {
-					c.selectedProperty().addListener(selectionListener);
-				}
-				juries.setAll(loadJuries(session));
-				for (SelectableEntity<Jury> j : juries) {
-					j.selectedProperty().addListener(selectionListener);
-				}
-				updatePredicate();
-				categoryFilter.setDisable(false);
-				juryFilter.setDisable(false);
-			});
+			categories.setAll(loadCategories(project.getModel()));
+			for (SelectableEntity<Category> c : categories) {
+				c.selectedProperty().addListener(selectionListener);
+			}
+			juries.setAll(loadJuries(project.getModel()));
+			for (SelectableEntity<Jury> j : juries) {
+				j.selectedProperty().addListener(selectionListener);
+			}
+			updatePredicate();
+			categoryFilter.setDisable(false);
+			juryFilter.setDisable(false);
 		}
 	}
 
-	private static List<SelectableEntity<Category>> loadCategories(DataSession session) {
-		Query<Category> query = session.getNamedQuery("findAllCategories");
-		return query.list().stream()
+	private static List<SelectableEntity<Category>> loadCategories(Model model) {
+		return model.categories().findAll().stream()
 				.map(c -> new SelectableEntity<>(c, true))
 				.collect(Collectors.toList());
 	}
 
-	private static List<SelectableEntity<Jury>> loadJuries(DataSession session) {
-		Query<Jury> query = session.getNamedQuery("findAllJuries");
-		return query.list().stream()
+	private static List<SelectableEntity<Jury>> loadJuries(Model model) {
+		return model.juries().findAll().stream()
 				.map(j -> new SelectableEntity<>(j, true))
 				.collect(Collectors.toList());
 	}
@@ -165,22 +163,21 @@ public final class FilterController {
 			predicate.set(PREDICATE_NONE);
 			return;
 		}
-		Set<Long> selectedCategories = categories.stream()
+		var selectedCategories = categories.stream()
 				.filter(c -> c.selectedProperty().get())
-				.map(c -> c.getEntity().getId())
+				.map(c -> c.getEntity())
 				.collect(Collectors.toSet());
-		Set<Long> selectedJuries = juries.stream()
+		var selectedJuries = juries.stream()
 				.filter(j -> j.selectedProperty().get())
-				.map(j -> j.getEntity().getId())
+				.map(j -> j.getEntity())
 				.collect(Collectors.toSet());
 		predicate.set(p -> {
-			Participation participation = p.getParticipation();
-			return selectedCategories.contains(participation.getCategory().getId())
-					&& selectedJuries.contains(participation.getJury().getId());
+			return selectedCategories.contains(p.getCategory())
+					&& selectedJuries.contains(p.getJury());
 		});
 	}
 
-	ObservableValue<Predicate<LiveParticipation>> predicateProperty() {
+	ObservableValue<Predicate<Participation>> predicateProperty() {
 		return predicate;
 	}
 }

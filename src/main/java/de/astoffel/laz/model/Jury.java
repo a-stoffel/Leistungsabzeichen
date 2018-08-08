@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Andreas Stoffel
+ * Copyright (C) 2018 astoffel
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,98 +16,37 @@
  */
 package de.astoffel.laz.model;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Optional;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.persistence.Version;
+import de.astoffel.laz.model.transfer.TransferEntityType;
+import de.astoffel.laz.model.transfer.TransferJury;
+import de.astoffel.laz.model.transfer.TransferModel;
+import javafx.beans.property.Property;
 
 /**
  *
  * @author astoffel
  */
-@Entity
-@Access(AccessType.FIELD)
-@Table(uniqueConstraints = {
-	@UniqueConstraint(columnNames = {
-		"name"
-	})}
-)
-@NamedQueries({
-	@NamedQuery(
-			name = "findJuryByName",
-			query = "from Jury j where j.name = :name"
-	),
-	@NamedQuery(
-			name = "findAllJuries",
-			query = "from Jury j"
-	),
-	@NamedQuery(
-			name = "deleteAllJuries",
-			query = "delete from Jury j"
-	)
-})
-public class Jury implements EntityObject, Serializable, Comparable<Jury> {
+public final class Jury extends AbstractEntity<TransferJury> implements NamedEntity, Comparable<Jury> {
 
-	public static Optional<Jury> findByName(DataSession session, String name) {
-		return session.<Jury>getNamedQuery("findJuryByName")
-				.setParameter("name", name)
-				.uniqueResultOptional();
-	}
+	private final Property<String> name;
 
-	public static List<Jury> findAll(DataSession session) {
-		return session.<Jury>getNamedQuery("findAllJuries")
-				.list();
-	}
-
-	public static void deleteAll(DataSession session) {
-		session.<Jury>getNamedQuery("deleteAllJuries").executeUpdate();
-	}
-
-	private static final long serialVersionUID = 0L;
-
-	@Id
-	@GeneratedValue
-	private Long id;
-	@Version
-	private Long version;
-
-	@Basic(optional = false)
-	@Column(nullable = false)
-	private String name;
-
-	protected Jury() {
-	}
-
-	public Jury(String name) {
-		this.name = name;
+	Jury(TransferModel transferModel, TransferJury transfer) {
+		super(transferModel, TransferEntityType.JURY, transfer);
+		this.name = createProperty(TransferJury::getName, TransferJury::setName);
 	}
 
 	@Override
-	public int compareTo(Jury o) {
-		return (this.name == null ? "" : this.name).compareTo(
-				o.name == null ? "" : o.name);
+	public int compareTo(Jury other) {
+		return name.getValue().compareTo(other.name.getValue());
 	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public String getName() {
+	@Override
+	@PropertyDescriptor(name = "Name")
+	public Property<String> nameProperty() {
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public String getName() {
+		return name.getValue();
 	}
+
 }

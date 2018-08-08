@@ -16,15 +16,42 @@
  */
 package de.astoffel.laz.model;
 
+import de.astoffel.laz.model.transfer.TransferCategory;
+import de.astoffel.laz.model.transfer.TransferEntityType;
+import de.astoffel.laz.model.transfer.TransferModel;
+import java.util.List;
+import java.util.Optional;
+
 /**
  *
  * @author astoffel
  */
-public class CategorySet extends EntitySet<Category> {
+public final class CategorySet extends AbstractEntitySet<Category, TransferCategory> {
 
-	public CategorySet(DataSession session) {
-		super(session, Category.class, () -> new Category("", ""),
-				Category::findAll);
+	CategorySet(TransferModel transferModel) {
+		super(transferModel, TransferEntityType.CATEGORY);
 	}
 
+	@Override
+	TransferCategory createTransfer() {
+		return new TransferCategory("", "");
+	}
+
+	@Override
+	Category createEntity(TransferCategory transfer) {
+		return new Category(transferModel(), transfer);
+	}
+
+	public Optional<Category> find(long id) {
+		return doFind(session -> session.categories().find(id));
+	}
+
+	@Override
+	public List<Category> findAll() {
+		return doFindAll(session -> session.categories().findAll());
+	}
+
+	public Optional<Category> findByName(String name) {
+		return doFind(session -> session.categories().findByName(name));
+	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Andreas Stoffel
+ * Copyright (C) 2018 astoffel
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,153 +16,86 @@
  */
 package de.astoffel.laz.model;
 
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import de.astoffel.laz.model.transfer.TransferEntityType;
+import de.astoffel.laz.model.transfer.TransferModel;
+import de.astoffel.laz.model.transfer.TransferParticipation;
 import java.util.Map;
-import java.util.Optional;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapKeyJoinColumn;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.persistence.Version;
+import java.util.WeakHashMap;
+import javafx.beans.property.ReadOnlyProperty;
 
 /**
  *
  * @author astoffel
  */
-@Entity
-@Access(AccessType.FIELD)
-@Table(uniqueConstraints = {
-	@UniqueConstraint(columnNames = {
-		"participant_id", "category_id", "instrument_id"
-	})}
-)
-@NamedQueries({
-	@NamedQuery(
-			name = "findParticipation",
-			query = "from Participation p where p.participant.id = :participant and p.category.id = :category and p.instrument.id = :instrument"
-	),
-	@NamedQuery(
-			name = "findParticipations",
-			query = "from Participation p where p.participant.id = :participant"
-	),
-	@NamedQuery(
-			name = "findAllParticipations",
-			query = "from Participation p"
-	),
-	@NamedQuery(
-			name = "deleteAllParticipations",
-			query = "delete from Participation p"
-	)
-})
-public class Participation implements EntityObject, Serializable {
+public final class Participation extends AbstractEntity<TransferParticipation> {
 
-	public static Optional<Participation> find(DataSession session, Participant participant, Category category, Instrument instrument) {
-		return session.<Participation>getNamedQuery("findParticipation")
-				.setParameter("participant", participant.getId())
-				.setParameter("category", category.getId())
-				.setParameter("instrument", instrument.getId())
-				.uniqueResultOptional();
+	private final ReadOnlyProperty<Participant> participant;
+	private final ReadOnlyProperty<Category> category;
+	private final ReadOnlyProperty<Instrument> instrument;
+	private final ReadOnlyProperty<Jury> jury;
+	private final Map<Exam, Assessment> assessments;
+	private final Model model;
+
+	Participation(Model model, TransferModel transferModel,
+			TransferParticipation transfer) {
+		super(transferModel, TransferEntityType.PARTICIPATION, transfer);
+		this.model = model;
+		this.participant = createReadonlyProperty(p -> model.participants()
+				.wrap(p.getParticipant()));
+		this.category = createReadonlyProperty(p -> model.categories()
+				.wrap(p.getCategory()));
+		this.instrument = createReadonlyProperty(p -> model.instruments()
+				.wrap(p.getInstrument()));
+		this.jury = createReadonlyProperty(p -> model.juries()
+				.wrap(p.getJury()));
+		this.assessments = new WeakHashMap<>();
 	}
 
-	public static List<Participation> findAll(DataSession session) {
-		return session.<Participation>getNamedQuery("findAllParticipations")
-				.list();
-	}
-
-	public static List<Participation> findAllOfParticipant(DataSession session, Participant participant) {
-		return session.<Participation>getNamedQuery("findParticipations")
-				.setParameter("participant", participant.getId())
-				.list();
-	}
-
-	public static void deleteAll(DataSession session) {
-		session.<Participation>getNamedQuery("deleteAllParticipations").executeUpdate();
-	}
-
-	private static final long serialVersionUID = 0L;
-
-	@Id
-	@GeneratedValue
-	private Long id;
-
-	@Version
-	private Long version;
-
-	@ManyToOne
-	@JoinColumn(nullable = false)
-	private Participant participant;
-
-	@ManyToOne
-	@JoinColumn(nullable = false)
-	private Category category;
-
-	@ManyToOne
-	@JoinColumn(nullable = false)
-	private Instrument instrument;
-
-	@ManyToOne
-	@JoinColumn(nullable = false)
-	private Jury jury;
-
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JoinColumn(name = "participation_id", nullable = false)
-	@MapKeyJoinColumn(name = "exam_id", nullable = false)
-	private Map<Exam, Assessment> assessments;
-
-	protected Participation() {
-	}
-
-	public Participation(Participant participant, Category category,
-			Instrument instrument, Jury jury, List<Exam> exams) {
-		this.participant = participant;
-		this.category = category;
-		this.instrument = instrument;
-		this.jury = jury;
-		this.assessments = new HashMap<>();
-		for (Exam exam : exams) {
-			this.assessments.put(exam, new Assessment());
+	public boolean hasParticipated() {
+		for (var e : model.exams().findAll()) {
+			if (assessmentOf(e).getGrade() != null) {
+				return true;
+			}
 		}
-	}
-	
-	public Long getId() {
-		return id;
+		return false;
 	}
 
-	public Participant getParticipant() {
+	public ReadOnlyProperty<Participant> participantProperty() {
 		return participant;
 	}
 
-	public Category getCategory() {
+	public Participant getParticipant() {
+		return participant.getValue();
+	}
+
+	public ReadOnlyProperty<Category> categoryProperty() {
 		return category;
 	}
 
-	public Instrument getInstrument() {
+	public Category getCategory() {
+		return category.getValue();
+	}
+
+	public ReadOnlyProperty<Instrument> instrumentProperty() {
 		return instrument;
 	}
 
-	public Jury getJury() {
+	public ReadOnlyProperty<Jury> juryProperty() {
 		return jury;
 	}
 
-	public Map<Exam, Assessment> getAssessments() {
-		return Collections.unmodifiableMap(assessments);
+	public Jury getJury() {
+		return jury.getValue();
 	}
 
-	public Assessment getAssessment(Exam exam) {
-		return assessments.get(exam);
+	public Assessment assessmentOf(Exam exam) {
+		var result = assessments.get(exam);
+		if (result == null) {
+			result = model.assessments().wrap(
+					transfer().getAssessment(exam.transfer()));
+			assessments.put(exam, result);
+		}
+		return result;
 	}
 
 }

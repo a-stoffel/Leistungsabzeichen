@@ -16,15 +16,34 @@
  */
 package de.astoffel.laz.model;
 
+import de.astoffel.laz.model.transfer.TransferEntityType;
+import de.astoffel.laz.model.transfer.TransferModel;
+import de.astoffel.laz.model.transfer.TransferParticipant;
+import java.util.List;
+
 /**
  *
  * @author astoffel
  */
-public class ParticipantSet extends EntitySet<Participant> {
+public final class ParticipantSet extends AbstractEntitySet<Participant, TransferParticipant> {
 
-	public ParticipantSet(DataSession session) {
-		super(session, Participant.class, () -> new Participant(""),
-				Participant::findAll);
+	ParticipantSet(TransferModel transferModel) {
+		super(transferModel, TransferEntityType.PARTICIPANT);
+	}
+
+	@Override
+	TransferParticipant createTransfer() {
+		return new TransferParticipant("");
+	}
+
+	@Override
+	Participant createEntity(TransferParticipant transfer) {
+		return new Participant(transferModel(), transfer);
+	}
+
+	@Override
+	public List<Participant> findAll() {
+		return doFindAll(session -> session.participants().findAll());
 	}
 
 }

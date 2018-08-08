@@ -16,9 +16,19 @@
  */
 package de.astoffel.laz.test;
 
-import de.astoffel.laz.model.*;
+import de.astoffel.laz.model.transfer.TransferCategory;
+import de.astoffel.laz.model.transfer.TransferExam;
+import de.astoffel.laz.model.transfer.TransferException;
+import de.astoffel.laz.model.transfer.TransferGrade;
+import de.astoffel.laz.model.transfer.TransferInstrument;
+import de.astoffel.laz.model.transfer.TransferJury;
+import de.astoffel.laz.model.transfer.TransferMeta;
+import de.astoffel.laz.model.transfer.TransferParticipant;
+import de.astoffel.laz.model.transfer.TransferParticipation;
+import de.astoffel.laz.model.transfer.TransferSession;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
@@ -28,60 +38,65 @@ import java.util.Random;
  */
 public final class TestModelGenerator {
 
-	public final List<Category> categories = new ArrayList<>();
-	public final List<Exam> exams = new ArrayList<>();
-	public final List<Grade> grades = new ArrayList<>();
-	public final List<Instrument> instruments = new ArrayList<>();
-	public final List<Jury> juries = new ArrayList<>();
-	public final List<Participant> participants = new ArrayList<>();
-	public final List<Participation> participantions = new ArrayList<>();
-	public final Meta meta;
+	public final List<TransferCategory> categories = new ArrayList<>();
+	public final List<TransferExam> exams = new ArrayList<>();
+	public final List<TransferGrade> grades = new ArrayList<>();
+	public final List<TransferInstrument> instruments = new ArrayList<>();
+	public final List<TransferJury> juries = new ArrayList<>();
+	public final List<TransferParticipant> participants = new ArrayList<>();
+	public final List<TransferParticipation> participantions = new ArrayList<>();
+	public final TransferMeta meta;
 
-	public TestModelGenerator(DataSession session) {
-		  var rand = new Random();
-		for (  var c = 0; c < 3; ++c) {
-			  var category = new Category("Category " + c, "Name of Category " + c);
-			session.persist(category);
+	public TestModelGenerator(TransferSession session) throws TransferException {
+		var rand = new Random();
+		for (var c = 0; c < 3; ++c) {
+			var category = new TransferCategory("Category " + c,
+					"Name of Category " + c);
+			session.categories().persist(category);
 			categories.add(category);
 		}
-		for (  var e = 0; e < 3; ++e) {
-			  var descriptions = new HashMap<Category, String>();
-			for (Category c : categories) {
-				descriptions.put(c, "Description of Exam " + e + " in " + c.getName());
+		for (var e = 0; e < 3; ++e) {
+			var descriptions = new HashMap<TransferCategory, String>();
+			for (var c : categories) {
+				descriptions.put(c, "Description of Exam " + e + " in " + c
+						.getName());
 			}
-			  var exam = new Exam(e, "Exam " + e, "Name of Exam " + e, "E" + e, descriptions);
-			session.persist(exam);
+			var exam = new TransferExam(e, "Exam " + e, "Name of Exam " + e, "E" + e,
+					descriptions);
+			session.exams().persist(exam);
 			exams.add(exam);
 		}
 		for (int g = 0; g < 3; ++g) {
-			  var grade = new Grade("Grade " + g, "Name of Grade " + g);
-			session.persist(grade);
+			var grade = new TransferGrade("Grade " + g, "Name of Grade " + g);
+			session.grades().persist(grade);
 			grades.add(grade);
 		}
 		for (int i = 0; i < 3; ++i) {
-			  var instrument = new Instrument("Instrument " + i, "Name of Instrument " + i);
-			session.persist(instrument);
+			var instrument = new TransferInstrument("Instrument " + i,
+					"Name of Instrument " + i);
+			session.instruments().persist(instrument);
 			instruments.add(instrument);
 		}
 		for (int j = 0; j < 3; ++j) {
-			  var jury = new Jury("Jury " + j);
-			session.persist(jury);
+			var jury = new TransferJury("Jury " + j);
+			session.juries().persist(jury);
 			juries.add(jury);
 		}
 		for (int p = 0; p < 3; ++p) {
-			  var participant = new Participant("Jury " + p);
-			session.persist(participant);
+			var participant = new TransferParticipant("Jury " + p);
+			session.participants().persist(participant);
 			participants.add(participant);
 		}
-		for (  var p : participants) {
-			for (  var c : categories) {
-				for (  var i : instruments) {
-					  var j = juries.get(rand.nextInt(juries.size()));
-					  var participation = new Participation(p, c, i, j, exams);
-					session.persist(participation);
+		for (var p : participants) {
+			for (var c : categories) {
+				for (var i : instruments) {
+					var j = juries.get(rand.nextInt(juries.size()));
+					var participation = new TransferParticipation(p, c, i, j,
+							new HashSet<>(exams));
+					session.participations().persist(participation);
 					participantions.add(participation);
-					  var first = true;
-					for (  var a : participation.getAssessments().values()) {
+					var first = true;
+					for (var a : participation.getAssessments().values()) {
 						if (first) {
 							first = false;
 							continue;
@@ -91,8 +106,8 @@ public final class TestModelGenerator {
 				}
 			}
 		}
-		meta = new Meta("location", "date");
-		session.persist(meta);
+		meta = new TransferMeta("location", "date");
+		session.meta().persist(meta);
 	}
 
 }

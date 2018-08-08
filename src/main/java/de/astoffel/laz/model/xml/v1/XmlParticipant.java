@@ -16,8 +16,9 @@
  */
 package de.astoffel.laz.model.xml.v1;
 
-import de.astoffel.laz.model.DataSession;
-import de.astoffel.laz.model.Participant;
+import de.astoffel.laz.model.transfer.TransferException;
+import de.astoffel.laz.model.transfer.TransferParticipant;
+import de.astoffel.laz.model.transfer.TransferSession;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,15 +39,15 @@ final class XmlParticipant {
 	private XmlParticipant() {
 	}
 
-	public XmlParticipant(Participant participant, List<XmlParticipation> participations) {
+	public XmlParticipant(TransferParticipant participant, List<XmlParticipation> participations) {
 		this.name = participant.getName();
 		this.participations.addAll(participations);
 	}
 
-	void create(DataSession session) {
-		  var participant = new Participant(name);
-		session.persist(participant);
-		for (  var p : participations) {
+	void create(TransferSession session) throws TransferException {
+		var participant = new TransferParticipant(name);
+		session.participants().persist(participant);
+		for (var p : participations) {
 			p.create(session, participant);
 		}
 	}

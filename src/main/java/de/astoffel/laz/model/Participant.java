@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Andreas Stoffel
+ * Copyright (C) 2018 astoffel
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,81 +16,38 @@
  */
 package de.astoffel.laz.model;
 
-import java.io.Serializable;
-import java.util.List;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Version;
+import de.astoffel.laz.model.transfer.TransferEntityType;
+import de.astoffel.laz.model.transfer.TransferModel;
+import de.astoffel.laz.model.transfer.TransferParticipant;
+import javafx.beans.property.Property;
 
 /**
  *
  * @author astoffel
  */
-@Entity
-@Access(AccessType.FIELD)
-@NamedQueries({
-	@NamedQuery(
-			name = "findAllParticipants",
-			query = "from Participant p order by p.name asc"
-	),
-	@NamedQuery(
-			name = "deleteAllParticipants",
-			query = "delete from Participant p"
-	)
-})
-public class Participant implements EntityObject, Serializable, Comparable<Participant> {
+public final class Participant extends AbstractEntity<TransferParticipant>
+		implements NamedEntity, Comparable<Participant> {
 
-	public static List<Participant> findAll(DataSession session) {
-		return session.<Participant>getNamedQuery("findAllParticipants")
-				.list();
-	}
+	private final Property<String> name;
 
-	public static void deleteAll(DataSession session) {
-		session.<Participant>getNamedQuery("deleteAllParticipants").executeUpdate();
-	}
-
-	private static final long serialVersionUID = 0L;
-
-	@Id
-	@GeneratedValue
-	private Long id;
-	@Version
-	private Long version;
-
-	@Basic(optional = false)
-	@Column(nullable = false)
-	private String name;
-
-	protected Participant() {
-	}
-
-	public Participant(String name) {
-		this.name = name;
+	public Participant(TransferModel transferModel, TransferParticipant transfer) {
+		super(transferModel, TransferEntityType.PARTICIPANT, transfer);
+		this.name = createProperty(TransferParticipant::getName,
+				TransferParticipant::setName);
 	}
 
 	@Override
-	public int compareTo(Participant o) {
-		return (this.name == null ? "" : this.name).compareTo(
-				o.name == null ? "" : o.name);
+	public int compareTo(Participant other) {
+		return name.getValue().compareTo(other.name.getValue());
 	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public String getName() {
+	@Override
+	@PropertyDescriptor(name = "Name")
+	public Property<String> nameProperty() {
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public String getName() {
+		return name.getValue();
 	}
-
 }

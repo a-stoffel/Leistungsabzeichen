@@ -16,17 +16,35 @@
  */
 package de.astoffel.laz.model;
 
-import java.util.Map;
+import de.astoffel.laz.model.transfer.TransferEntityType;
+import de.astoffel.laz.model.transfer.TransferExam;
+import de.astoffel.laz.model.transfer.TransferModel;
+import java.util.Collections;
+import java.util.List;
 
 /**
  *
  * @author astoffel
  */
-public class ExamSet extends EntitySet<Exam> {
+public final class ExamSet extends AbstractEntitySet<Exam, TransferExam> {
 
-	public ExamSet(DataSession session) {
-		super(session, Exam.class, () -> new Exam(0, "", "", "", Map.of()),
-				Exam::findAll);
+	public ExamSet(TransferModel transferModel) {
+		super(transferModel, TransferEntityType.EXAM);
+	}
+
+	@Override
+	TransferExam createTransfer() {
+		return new TransferExam(0, "", "", "", Collections.emptyMap());
+	}
+
+	@Override
+	Exam createEntity(TransferExam transfer) {
+		return new Exam(transferModel(), transfer);
+	}
+
+	@Override
+	public List<Exam> findAll() {
+		return doFindAll(session -> session.exams().findAll());
 	}
 
 }

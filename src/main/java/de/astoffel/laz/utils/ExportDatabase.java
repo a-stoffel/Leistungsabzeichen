@@ -16,7 +16,8 @@
  */
 package de.astoffel.laz.utils;
 
-import de.astoffel.laz.model.DataModel;
+import de.astoffel.laz.model.Model;
+import de.astoffel.laz.model.transfer.TransferException;
 import de.astoffel.laz.model.xml.XmlModel;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -29,16 +30,17 @@ import java.nio.file.Path;
  */
 public abstract class ExportDatabase {
 
-	public static void exportDatabase(DataModel model, Path path) throws IOException {
-		try (  var out = Files.newOutputStream(path)) {
+	public static void exportDatabase(Model model, Path path) throws IOException, TransferException {
+		try ( var out = Files.newOutputStream(path)) {
 			exportDatabase(model, out);
 		}
 	}
 
-	public static void exportDatabase(DataModel model, OutputStream out) throws IOException {
-		model.atomicThrows(session -> {
-			XmlModel.create(session).write(out);
+	public static void exportDatabase(Model model, OutputStream out) throws IOException, TransferException {
+		var x = model.transferModel().compute(session -> {
+			return XmlModel.create(session);
 		});
+		x.write(out);
 	}
 
 }

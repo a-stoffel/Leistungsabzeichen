@@ -16,8 +16,9 @@
  */
 package de.astoffel.laz.model.xml.v1;
 
-import de.astoffel.laz.model.DataSession;
-import de.astoffel.laz.model.Instrument;
+import de.astoffel.laz.model.transfer.TransferException;
+import de.astoffel.laz.model.transfer.TransferInstrument;
+import de.astoffel.laz.model.transfer.TransferSession;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlValue;
 
@@ -35,13 +36,13 @@ final class XmlInstrument {
 	private XmlInstrument() {
 	}
 
-	public XmlInstrument(Instrument instrument) {
+	public XmlInstrument(TransferInstrument instrument) {
 		this.name = instrument.getName();
 		this.displayName = instrument.getDisplayName();
 	}
 
-	void create(DataSession session) {
-		session.persist(new Instrument(name, displayName));
+	void create(TransferSession session) throws TransferException {
+		session.instruments().persist(new TransferInstrument(name, displayName));
 	}
 
 	String getName() {

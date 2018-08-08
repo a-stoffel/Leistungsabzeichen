@@ -16,7 +16,8 @@
  */
 package de.astoffel.laz.model.xml;
 
-import de.astoffel.laz.model.DataSession;
+import de.astoffel.laz.model.transfer.TransferException;
+import de.astoffel.laz.model.transfer.TransferSession;
 import de.astoffel.laz.model.xml.v1.XmlModelV1;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,7 +40,7 @@ import org.xml.sax.SAXException;
  */
 public interface XmlModel {
 
-	public static XmlModel create(DataSession session) {
+	public static XmlModel create(TransferSession session) throws TransferException {
 		return new XmlModelV1(session);
 	}
 
@@ -49,11 +50,14 @@ public interface XmlModel {
 
 	public static XmlModel read(Reader reader) throws IOException {
 		try {
-			  var context = JAXBContext.newInstance(XmlModelV1.class);
-			  var unmarshaller = context.createUnmarshaller();
-			try (InputStream v1SchemaStream = XmlModel.class.getResourceAsStream(XmlModelV1.SCHEMA_LOCATION)) {
-				  var schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-				  var schema = schemaFactory.newSchema(new StreamSource(v1SchemaStream));
+			var context = JAXBContext.newInstance(XmlModelV1.class);
+			var unmarshaller = context.createUnmarshaller();
+			try ( InputStream v1SchemaStream = XmlModel.class
+					.getResourceAsStream(XmlModelV1.SCHEMA_LOCATION)) {
+				var schemaFactory = SchemaFactory
+						.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+				var schema = schemaFactory
+						.newSchema(new StreamSource(v1SchemaStream));
 				unmarshaller.setSchema(schema);
 			}
 			return (XmlModel) unmarshaller.unmarshal(reader);
@@ -70,5 +74,5 @@ public interface XmlModel {
 
 	public void write(Writer writer) throws IOException;
 
-	public void populate(DataSession session);
+	public void populate(TransferSession session) throws TransferException;
 }

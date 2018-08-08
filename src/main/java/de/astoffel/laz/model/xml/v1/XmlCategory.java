@@ -16,8 +16,9 @@
  */
 package de.astoffel.laz.model.xml.v1;
 
-import de.astoffel.laz.model.Category;
-import de.astoffel.laz.model.DataSession;
+import de.astoffel.laz.model.transfer.TransferCategory;
+import de.astoffel.laz.model.transfer.TransferException;
+import de.astoffel.laz.model.transfer.TransferSession;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlValue;
 
@@ -35,13 +36,13 @@ final class XmlCategory {
 	private XmlCategory() {
 	}
 
-	public XmlCategory(Category category) {
+	public XmlCategory(TransferCategory category) {
 		this.name = category.getName();
 		this.displayName = category.getDisplayName();
 	}
 
-	void create(DataSession session) {
-		session.persist(new Category(name, displayName));
+	void create(TransferSession session) throws TransferException {
+		session.categories().persist(new TransferCategory(name, displayName));
 	}
 
 	String getName() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Andreas Stoffel
+ * Copyright (C) 2018 astoffel
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,114 +16,47 @@
  */
 package de.astoffel.laz.model;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Optional;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.persistence.Version;
+import de.astoffel.laz.model.transfer.TransferEntityType;
+import de.astoffel.laz.model.transfer.TransferInstrument;
+import de.astoffel.laz.model.transfer.TransferModel;
+import javafx.beans.property.Property;
 
 /**
  *
  * @author astoffel
  */
-@Entity
-@Access(AccessType.FIELD)
-@Table(uniqueConstraints = {
-	@UniqueConstraint(columnNames = {
-		"name"
-	})}
-)
-@NamedQueries({
-	@NamedQuery(
-			name = "findInstrumentByName",
-			query = "from Instrument i where i.name = :name"
-	),
-	@NamedQuery(
-			name = "findAllInstruments",
-			query = "from Instrument i"
-	),
-	@NamedQuery(
-			name = "deleteAllInstruments",
-			query = "delete from Instrument i"
-	)
-})
-public class Instrument implements EntityObject, Serializable, Comparable<Instrument> {
+public final class Instrument extends AbstractEntity<TransferInstrument>
+		implements NamedEntity, Comparable<Instrument> {
 
-	public static Optional<Instrument> findByName(DataSession session, String name) {
-		return session.<Instrument>getNamedQuery("findInstrumentByName")
-				.setParameter("name", name)
-				.uniqueResultOptional();
-	}
+	private final Property<String> name;
+	private final Property<String> displayName;
 
-	public static List<Instrument> findAll(DataSession session) {
-		return session.<Instrument>getNamedQuery("findAllInstruments")
-				.list();
-	}
-
-	public static void deleteAll(DataSession session) {
-		session.<Instrument>getNamedQuery("deleteAllInstruments")
-				.executeUpdate();
-	}
-
-	private static final long serialVersionUID = 0L;
-
-	@Id
-	@GeneratedValue
-	private Long id;
-
-	@Version
-	private Long version;
-
-	@Basic(optional = false)
-	@Column(nullable = false)
-	private String name;
-
-	@Basic(optional = false)
-	@Column(nullable = false)
-	private String displayName;
-
-	protected Instrument() {
-	}
-
-	public Instrument(String name, String displayName) {
-		this.name = name;
-		this.displayName = displayName;
+	Instrument(TransferModel transferModel, TransferInstrument transfer) {
+		super(transferModel, TransferEntityType.INSTRUMENT, transfer);
+		this.name = createProperty(TransferInstrument::getName,
+				TransferInstrument::setName);
+		this.displayName = createProperty(TransferInstrument::getDisplayName,
+				TransferInstrument::setDisplayName);
 	}
 
 	@Override
-	public int compareTo(Instrument o) {
-		return (this.name == null ? "" : this.name).compareTo(
-				o.name == null ? "" : o.name);
+	public int compareTo(Instrument other) {
+		return name.getValue().compareTo(other.name.getValue());
 	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public String getName() {
+	@Override
+	@PropertyDescriptor(name = "Name")
+	public Property<String> nameProperty() {
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public String getName() {
+		return name.getValue();
 	}
 
-	public String getDisplayName() {
+	@PropertyDescriptor(name = "Display Name")
+	public Property<String> displayNameProperty() {
 		return displayName;
-	}
-
-	public void setDisplayName(String name) {
-		this.displayName = name;
 	}
 
 }

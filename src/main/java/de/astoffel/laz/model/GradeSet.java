@@ -16,15 +16,43 @@
  */
 package de.astoffel.laz.model;
 
+import de.astoffel.laz.model.transfer.TransferEntityType;
+import de.astoffel.laz.model.transfer.TransferGrade;
+import de.astoffel.laz.model.transfer.TransferModel;
+import java.util.List;
+import java.util.Optional;
+
 /**
  *
  * @author astoffel
  */
-public class GradeSet extends EntitySet<Grade> {
+public final class GradeSet extends AbstractEntitySet<Grade, TransferGrade> {
 
-	public GradeSet(DataSession session) {
-		super(session, Grade.class, () -> new Grade("", ""),
-				Grade::findAll);
+	public GradeSet(TransferModel transferModel) {
+		super(transferModel, TransferEntityType.GRADE);
+	}
+
+	@Override
+	TransferGrade createTransfer() {
+		return new TransferGrade("", "");
+	}
+
+	@Override
+	Grade createEntity(TransferGrade transfer) {
+		return new Grade(transferModel(), transfer);
+	}
+
+	public Optional<Grade> find(long id) {
+		return doFind(session -> session.grades().find(id));
+	}
+
+	@Override
+	public List<Grade> findAll() {
+		return doFindAll(session -> session.grades().findAll());
+	}
+
+	public Optional<Grade> findByName(String name) {
+		return doFind(session -> session.grades().findByName(name));
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Andreas Stoffel
+ * Copyright (C) 2018 astoffel
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,137 +16,50 @@
  */
 package de.astoffel.laz.model;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.persistence.Version;
+import de.astoffel.laz.model.transfer.TransferCategory;
+import de.astoffel.laz.model.transfer.TransferEntityType;
+import de.astoffel.laz.model.transfer.TransferModel;
+import javafx.beans.property.Property;
 
 /**
  *
  * @author astoffel
  */
-@Entity
-@Access(AccessType.FIELD)
-@Table(uniqueConstraints = {
-	@UniqueConstraint(columnNames = {
-		"name"
-	})}
-)
-@NamedQueries({
-	@NamedQuery(
-			name = "findCategoryByName",
-			query = "from Category c where c.name = :name"
-	),
-	@NamedQuery(
-			name = "findAllCategories",
-			query = "from Category c"
-	),
-	@NamedQuery(
-			name = "deleteAllCategories",
-			query = "delete from Category c"
-	)
-})
-public class Category implements EntityObject, Serializable, Comparable<Category> {
+public final class Category extends AbstractEntity<TransferCategory> implements NamedEntity, Comparable<Category> {
 
-	public static Optional<Category> findByName(DataSession session, String name) {
-		return session.<Category>getNamedQuery("findCategoryByName")
-				.setParameter("name", name)
-				.uniqueResultOptional();
-	}
+	private final Property<String> name;
+	private final Property<String> displayName;
 
-	public static List<Category> findAll(DataSession session) {
-		return session.<Category>getNamedQuery("findAllCategories")
-				.list();
-	}
-
-	public static void deleteAll(DataSession session) {
-		session.<Category>getNamedQuery("deleteAllCategories")
-				.executeUpdate();
-	}
-
-	private static final long serialVersionUID = 0L;
-
-	@Id
-	@GeneratedValue
-	private Long id;
-
-	@Version
-	private long version;
-
-	@Basic(optional = false)
-	@Column(nullable = false)
-	private String name;
-
-	@Basic(optional = false)
-	@Column(nullable = false)
-	private String displayName;
-
-	protected Category() {
-	}
-
-	public Category(String name, String displayName) {
-		this.name = name;
-		this.displayName = displayName;
+	Category(TransferModel transferModel, TransferCategory transfer) {
+		super(transferModel, TransferEntityType.CATEGORY, transfer);
+		this.name = createProperty(TransferCategory::getName,
+				TransferCategory::setName);
+		this.displayName = createProperty(TransferCategory::getDisplayName,
+				TransferCategory::setDisplayName);
 	}
 
 	@Override
-	public int hashCode() {
-		int hash = 7;
-		hash = 83 * hash + Objects.hashCode(this.id);
-		return hash;
+	public int compareTo(Category other) {
+		return name.getValue().compareTo(other.name.getValue());
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		final Category other = (Category) obj;
-		return Objects.equals(this.id, other.id);
-	}
-
-	@Override
-	public int compareTo(Category o) {
-		return (this.name == null ? "" : this.name).compareTo(
-				o.name == null ? "" : o.name);
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public String getName() {
+	@PropertyDescriptor(name = "Name")
+	public Property<String> nameProperty() {
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public String getName() {
+		return name.getValue();
 	}
 
-	public String getDisplayName() {
+	@PropertyDescriptor(name = "Display Name")
+	public Property<String> displayNameProperty() {
 		return displayName;
 	}
 
-	public void setDisplayName(String displayName) {
-		this.displayName = displayName;
+	public String getDisplayName() {
+		return displayName.getValue();
 	}
 
 }

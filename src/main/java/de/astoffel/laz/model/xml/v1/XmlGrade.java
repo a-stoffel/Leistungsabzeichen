@@ -16,8 +16,9 @@
  */
 package de.astoffel.laz.model.xml.v1;
 
-import de.astoffel.laz.model.DataSession;
-import de.astoffel.laz.model.Grade;
+import de.astoffel.laz.model.transfer.TransferException;
+import de.astoffel.laz.model.transfer.TransferGrade;
+import de.astoffel.laz.model.transfer.TransferSession;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlValue;
 
@@ -35,13 +36,13 @@ final class XmlGrade {
 	private XmlGrade() {
 	}
 
-	public XmlGrade(Grade grade) {
+	public XmlGrade(TransferGrade grade) {
 		this.name = grade.getName();
 		this.displayName = grade.getDisplayName();
 	}
 
-	void create(DataSession session) {
-		session.persist(new Grade(name, displayName));
+	void create(TransferSession session) throws TransferException {
+		session.grades().persist(new TransferGrade(name, displayName));
 	}
 
 	String getName() {

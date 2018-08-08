@@ -16,8 +16,9 @@
  */
 package de.astoffel.laz.model.xml.v1;
 
-import de.astoffel.laz.model.DataSession;
-import de.astoffel.laz.model.Jury;
+import de.astoffel.laz.model.transfer.TransferException;
+import de.astoffel.laz.model.transfer.TransferJury;
+import de.astoffel.laz.model.transfer.TransferSession;
 import javax.xml.bind.annotation.XmlAttribute;
 
 /**
@@ -32,12 +33,12 @@ final class XmlJury {
 	private XmlJury() {
 	}
 
-	public XmlJury(Jury jury) {
+	public XmlJury(TransferJury jury) {
 		this.name = jury.getName();
 	}
 
-	void create(DataSession session) {
-		session.persist(new Jury(name));
+	void create(TransferSession session) throws TransferException {
+		session.juries().persist(new TransferJury(name));
 	}
 
 	String getName() {

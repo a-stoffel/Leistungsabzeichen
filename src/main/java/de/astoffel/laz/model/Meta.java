@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Andreas Stoffel
+ * Copyright (C) 2018 astoffel
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,87 +16,36 @@
  */
 package de.astoffel.laz.model;
 
-import java.io.Serializable;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Version;
+import de.astoffel.laz.model.transfer.TransferEntityType;
+import de.astoffel.laz.model.transfer.TransferMeta;
+import de.astoffel.laz.model.transfer.TransferModel;
+import javafx.beans.property.Property;
 
 /**
  *
  * @author astoffel
  */
-@Entity
-@Access(AccessType.FIELD)
-@NamedQueries({
-	@NamedQuery(
-			name = "findMeta",
-			query = "from Meta m"
-	),
-	@NamedQuery(
-			name = "deleteAllMetas",
-			query = "delete from Meta m"
-	)
-})
-public class Meta implements EntityObject, Serializable {
+public final class Meta extends AbstractEntity<TransferMeta> {
 
-	public static Meta find(DataSession session) {
-		  var result = session.<Meta>getNamedQuery("findMeta").uniqueResult();
-		if (result == null) {
-			result = new Meta("", "");
-			session.persist(result);
-		}
-		return result;
+	private final Property<String> location;
+	private final Property<String> eventDate;
+
+	Meta(TransferModel transferModel, TransferMeta transfer) {
+		super(transferModel, TransferEntityType.META, transfer);
+		this.location = createProperty(TransferMeta::getLocation,
+				TransferMeta::setLocation);
+		this.eventDate = createProperty(TransferMeta::getEventDate,
+				TransferMeta::setEventDate);
 	}
 
-	public static void deleteAll(DataSession session) {
-		session.getNamedQuery("deleteAllMetas").executeUpdate();
-	}
-
-	private static final long serialVersionUID = 0L;
-
-	@Id
-	private long id;
-	@Version
-	private Long version;
-
-	@Basic(optional = false)
-	@Column(nullable = false)
-	private String location;
-
-	@Basic(optional = false)
-	@Column(nullable = false)
-	private String eventDate;
-
-	protected Meta() {
-		this.id = 0;
-	}
-
-	public Meta(String location, String eventDate) {
-		this.id = 0;
-		this.location = location;
-		this.eventDate = eventDate;
-	}
-
-	public String getLocation() {
+	@PropertyDescriptor(name = "Location")
+	public Property<String> locationProperty() {
 		return location;
 	}
 
-	public void setLocation(String location) {
-		this.location = location;
-	}
-
-	public String getEventDate() {
+	@PropertyDescriptor(name = "Event Date")
+	public Property<String> eventDateProperty() {
 		return eventDate;
-	}
-
-	public void setEventDate(String when) {
-		this.eventDate = when;
 	}
 
 }

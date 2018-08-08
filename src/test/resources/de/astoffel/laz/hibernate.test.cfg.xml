@@ -37,15 +37,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		<property name="hibernate.current_session_context_class">thread</property>
 			
 	
-		<mapping class="de.astoffel.laz.model.Assessment"/>
-		<mapping class="de.astoffel.laz.model.Category"/>
-		<mapping class="de.astoffel.laz.model.Exam"/>
-		<mapping class="de.astoffel.laz.model.Grade"/>
-		<mapping class="de.astoffel.laz.model.Instrument"/>
-		<mapping class="de.astoffel.laz.model.Jury"/>
-		<mapping class="de.astoffel.laz.model.Meta"/>
-		<mapping class="de.astoffel.laz.model.Participant"/>
-		<mapping class="de.astoffel.laz.model.Participation"/>
+		<mapping class="de.astoffel.laz.model.transfer.TransferAssessment"/>
+		<mapping class="de.astoffel.laz.model.transfer.TransferCategory"/>
+		<mapping class="de.astoffel.laz.model.transfer.TransferExam"/>
+		<mapping class="de.astoffel.laz.model.transfer.TransferGrade"/>
+		<mapping class="de.astoffel.laz.model.transfer.TransferInstrument"/>
+		<mapping class="de.astoffel.laz.model.transfer.TransferJury"/>
+		<mapping class="de.astoffel.laz.model.transfer.TransferMeta"/>
+		<mapping class="de.astoffel.laz.model.transfer.TransferParticipant"/>
+		<mapping class="de.astoffel.laz.model.transfer.TransferParticipation"/>
 			
 	</session-factory>
 

@@ -16,15 +16,8 @@
  */
 package de.astoffel.laz.model.xml.v1;
 
-import de.astoffel.laz.model.Category;
-import de.astoffel.laz.model.DataSession;
-import de.astoffel.laz.model.Exam;
-import de.astoffel.laz.model.Grade;
-import de.astoffel.laz.model.Instrument;
-import de.astoffel.laz.model.Jury;
-import de.astoffel.laz.model.Meta;
-import de.astoffel.laz.model.Participant;
-import de.astoffel.laz.model.Participation;
+import de.astoffel.laz.model.transfer.TransferException;
+import de.astoffel.laz.model.transfer.TransferSession;
 import de.astoffel.laz.model.xml.XmlModel;
 import de.astoffel.laz.model.xml.XmlModelException;
 import java.io.IOException;
@@ -55,7 +48,8 @@ public final class XmlModelV1 implements XmlModel {
 
 	private static Schema loadSchema() throws SAXException {
 		return SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
-				.newSchema(new StreamSource(XmlModelV1.class.getResourceAsStream(SCHEMA_LOCATION)));
+				.newSchema(new StreamSource(XmlModelV1.class
+						.getResourceAsStream(SCHEMA_LOCATION)));
 	}
 
 	@XmlAttribute(name = "location", required = true)
@@ -91,28 +85,28 @@ public final class XmlModelV1 implements XmlModel {
 	private XmlModelV1() {
 	}
 
-	public XmlModelV1(DataSession session) {
-		  var meta = Meta.find(session);
+	public XmlModelV1(TransferSession session) throws TransferException {
+		var meta = session.meta().find(0).get();
 		this.location = meta.getLocation();
 		this.when = meta.getEventDate();
-		for (  var g : Grade.findAll(session)) {
+		for (var g : session.grades().findAll()) {
 			this.grades.add(new XmlGrade(g));
 		}
-		for (  var i : Instrument.findAll(session)) {
+		for (var i : session.instruments().findAll()) {
 			this.instruments.add(new XmlInstrument(i));
 		}
-		for (  var j : Jury.findAll(session)) {
+		for (var j : session.juries().findAll()) {
 			this.juries.add(new XmlJury(j));
 		}
-		for (  var c : Category.findAll(session)) {
+		for (var c : session.categories().findAll()) {
 			this.categories.add(new XmlCategory(c));
 		}
-		for (  var e : Exam.findAll(session)) {
+		for (var e : session.exams().findAll()) {
 			this.exams.add(new XmlExam(e));
 		}
-		for (  var p : Participant.findAll(session)) {
+		for (var p : session.participants().findAll()) {
 			this.participants.add(new XmlParticipant(p,
-					Participation.findAllOfParticipant(session, p).stream()
+					session.participations().findAllByParticipant(p).stream()
 							.map(XmlParticipation::new)
 							.collect(Collectors.toList())));
 		}
@@ -120,45 +114,51 @@ public final class XmlModelV1 implements XmlModel {
 	}
 
 	private void verifyIntegrity() {
-		  var gradeNames = grades.stream()
+		var gradeNames = grades.stream()
 				.map(XmlGrade::getName)
 				.collect(Collectors.toSet());
-		  var instrumentNames = instruments.stream()
+		var instrumentNames = instruments.stream()
 				.map(XmlInstrument::getName)
 				.collect(Collectors.toSet());
-		  var juryNames = juries.stream()
+		var juryNames = juries.stream()
 				.map(XmlJury::getName)
 				.collect(Collectors.toSet());
-		  var categoryNames = categories.stream()
+		var categoryNames = categories.stream()
 				.map(XmlCategory::getName)
 				.collect(Collectors.toSet());
-		  var examNames = exams.stream()
+		var examNames = exams.stream()
 				.map(XmlExam::getName)
 				.collect(Collectors.toSet());
-		for (  var e : this.exams) {
-			for (  var d : e.getDescriptions()) {
+		for (var e : this.exams) {
+			for (var d : e.getDescriptions()) {
 				if (!categoryNames.contains(d.getCategory())) {
-					throw new XmlModelException("Unknown category " + d.getCategory());
+					throw new XmlModelException("Unknown category " + d
+							.getCategory());
 				}
 			}
 		}
-		for (  var p : this.participants) {
-			for (  var it : p.getParticipations()) {
+		for (var p : this.participants) {
+			for (var it : p.getParticipations()) {
 				if (!instrumentNames.contains(it.getInstrument())) {
-					throw new XmlModelException("Unknown instrument " + it.getInstrument());
+					throw new XmlModelException("Unknown instrument " + it
+							.getInstrument());
 				}
 				if (!juryNames.contains(it.getJury())) {
 					throw new XmlModelException("Unknown jury " + it.getJury());
 				}
 				if (!categoryNames.contains(it.getCategory())) {
-					throw new XmlModelException("Unknown category " + it.getCategory());
+					throw new XmlModelException("Unknown category " + it
+							.getCategory());
 				}
-				for (  var a : it.getAssessments()) {
-					if (a.getGrade() != null && !gradeNames.contains(a.getGrade())) {
-						throw new XmlModelException("Unknown grade " + a.getGrade());
+				for (var a : it.getAssessments()) {
+					if (a.getGrade() != null && !gradeNames.contains(a
+							.getGrade())) {
+						throw new XmlModelException("Unknown grade " + a
+								.getGrade());
 					}
 					if (!examNames.contains(a.getExam())) {
-						throw new XmlModelException("Unknown exam " + a.getExam());
+						throw new XmlModelException("Unknown exam " + a
+								.getExam());
 					}
 				}
 			}
@@ -168,8 +168,8 @@ public final class XmlModelV1 implements XmlModel {
 	@Override
 	public void write(Writer writer) throws IOException {
 		try {
-			  var context =JAXBContext.newInstance(XmlModelV1.class);
-			  var marshaller = context.createMarshaller();
+			var context = JAXBContext.newInstance(XmlModelV1.class);
+			var marshaller = context.createMarshaller();
 			marshaller.setSchema(loadSchema());
 			marshaller.marshal(this, writer);
 		} catch (JAXBException | SAXException ex) {
@@ -178,42 +178,42 @@ public final class XmlModelV1 implements XmlModel {
 	}
 
 	@Override
-	public void populate(DataSession session) {
+	public void populate(TransferSession session) throws TransferException {
 		verifyIntegrity();
 		clearDatabase(session);
-		  var meta = Meta.find(session);
+		var meta = session.meta().get().get();
 		meta.setLocation(location);
 		meta.setEventDate(when);
-		session.persist(meta);
-		for (  var g : grades) {
+		session.meta().persist(meta);
+		for (var g : grades) {
 			g.create(session);
 		}
-		for (  var i : instruments) {
+		for (var i : instruments) {
 			i.create(session);
 		}
-		for (  var c : categories) {
+		for (var c : categories) {
 			c.create(session);
 		}
-		for (  var e : exams) {
+		for (var e : exams) {
 			e.create(session);
 		}
-		for (  var j : juries) {
+		for (var j : juries) {
 			j.create(session);
 		}
-		for (  var p : participants) {
+		for (var p : participants) {
 			p.create(session);
 		}
 	}
 
-	private void clearDatabase(DataSession session) {
-		Participation.deleteAll(session);
-		Participant.deleteAll(session);
-		Jury.deleteAll(session);
-		Exam.deleteAll(session);
-		Category.deleteAll(session);
-		Instrument.deleteAll(session);
-		Grade.deleteAll(session);
-		Meta.deleteAll(session);
+	private void clearDatabase(TransferSession session) throws TransferException {
+		session.participations().deleteAll();
+		session.participants().deleteAll();
+		session.juries().deleteAll();
+		session.exams().deleteAll();
+		session.categories().deleteAll();
+		session.instruments().deleteAll();
+		session.grades().deleteAll();
+		session.meta().deleteAll();
 	}
 
 }

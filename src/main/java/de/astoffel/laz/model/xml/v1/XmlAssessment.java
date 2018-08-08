@@ -16,8 +16,8 @@
  */
 package de.astoffel.laz.model.xml.v1;
 
-import de.astoffel.laz.model.Assessment;
-import de.astoffel.laz.model.Exam;
+import de.astoffel.laz.model.transfer.TransferAssessment;
+import de.astoffel.laz.model.transfer.TransferExam;
 import javax.xml.bind.annotation.XmlAttribute;
 
 /**
@@ -34,7 +34,7 @@ final class XmlAssessment {
 	private XmlAssessment() {
 	}
 
-	XmlAssessment(Exam exam, Assessment assessment) {
+	XmlAssessment(TransferExam exam, TransferAssessment assessment) {
 		this.exam = exam.getName();
 		if (assessment.getGrade() != null) {
 			this.grade = assessment.getGrade().getName();

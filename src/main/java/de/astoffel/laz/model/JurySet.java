@@ -16,15 +16,33 @@
  */
 package de.astoffel.laz.model;
 
+import de.astoffel.laz.model.transfer.TransferEntityType;
+import de.astoffel.laz.model.transfer.TransferJury;
+import de.astoffel.laz.model.transfer.TransferModel;
+import java.util.List;
+
 /**
  *
  * @author astoffel
  */
-public final class JurySet extends EntitySet<Jury> {
+public final class JurySet extends AbstractEntitySet<Jury, TransferJury> {
 
-	public JurySet(DataSession session) {
-		super(session, Jury.class, () -> new Jury(""), 
-				Jury::findAll);
+	JurySet(TransferModel transferModel) {
+		super(transferModel, TransferEntityType.JURY);
 	}
 
+	@Override
+	TransferJury createTransfer() {
+		return new TransferJury("");
+	}
+
+	@Override
+	Jury createEntity(TransferJury transfer) {
+		return new Jury(transferModel(), transfer);
+	}
+
+	@Override
+	public List<Jury> findAll() {
+		return doFindAll(session -> session.juries().findAll());
+	}
 }

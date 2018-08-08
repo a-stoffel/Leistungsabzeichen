@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Andreas Stoffel
+ * Copyright (C) 2018 astoffel
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,45 +16,34 @@
  */
 package de.astoffel.laz.model;
 
-import java.io.Serializable;
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Version;
+import de.astoffel.laz.model.transfer.TransferAssessment;
+import de.astoffel.laz.model.transfer.TransferEntityType;
+import de.astoffel.laz.model.transfer.TransferModel;
+import javafx.beans.property.Property;
 
 /**
  *
  * @author astoffel
  */
-@Entity
-@Access(AccessType.FIELD)
-public class Assessment implements EntityObject, Serializable {
+public final class Assessment extends AbstractEntity<TransferAssessment> {
 
-	private static final long serialVersionUID = 0L;
+	private final Property<Grade> grade;
 
-	@Id
-	@GeneratedValue
-	private Long id;
-	@Version
-	private Long version;
-
-	@ManyToOne
-	@JoinColumn(nullable = true)
-	private Grade grade;
-
-	protected Assessment() {
+	Assessment(Model model, TransferModel transferModel,
+			TransferAssessment transfer) {
+		super(transferModel, TransferEntityType.ASSESSMENT, transfer);
+		this.grade = createProperty(
+				t -> model.grades().wrap(t.getGrade()),
+				(t, g) -> t.setGrade(g.transfer())
+		);
 	}
 
-	public Grade getGrade() {
+	public Property<Grade> gradeProperty() {
 		return grade;
 	}
 
-	public void setGrade(Grade grade) {
-		this.grade = grade;
+	public Grade getGrade() {
+		return grade.getValue();
 	}
 
 }

@@ -16,18 +16,16 @@
  */
 package de.astoffel.laz.model.xml.v1;
 
-import de.astoffel.laz.model.Assessment;
-import de.astoffel.laz.model.Category;
-import de.astoffel.laz.model.DataSession;
 import de.astoffel.laz.model.Exam;
 import de.astoffel.laz.model.Grade;
-import de.astoffel.laz.model.Instrument;
-import de.astoffel.laz.model.Jury;
-import de.astoffel.laz.model.Participant;
-import de.astoffel.laz.model.Participation;
+import de.astoffel.laz.model.transfer.TransferExam;
+import de.astoffel.laz.model.transfer.TransferException;
+import de.astoffel.laz.model.transfer.TransferParticipant;
+import de.astoffel.laz.model.transfer.TransferParticipation;
+import de.astoffel.laz.model.transfer.TransferSession;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
@@ -49,34 +47,34 @@ final class XmlParticipation {
 	private XmlParticipation() {
 	}
 
-	public XmlParticipation(Participation participation) {
+	public XmlParticipation(TransferParticipation participation) {
 		this.category = participation.getCategory().getName();
 		this.instrument = participation.getInstrument().getName();
 		this.jury = participation.getJury().getName();
-		for (Map.Entry<Exam, Assessment> a : participation.getAssessments().entrySet()) {
+		for (var a : participation.getAssessments().entrySet()) {
 			assessments.add(new XmlAssessment(a.getKey(), a.getValue()));
 		}
 	}
 
-	void create(DataSession session, Participant participant) {
-		  var exams = new ArrayList<Exam>();
-		for (  var a : assessments) {
-			exams.add(Exam.findByName(session, a.getExam()).get());
+	void create(TransferSession session, TransferParticipant participant) throws TransferException {
+		var exams = new HashSet<TransferExam>();
+		for (var a : assessments) {
+			exams.add(session.exams().findByName(a.getExam()).get());
 		}
-		  var participation = new Participation(participant,
-				Category.findByName(session, category).get(),
-				Instrument.findByName(session, instrument).get(),
-				Jury.findByName(session, jury).get(),
+		var participation = new TransferParticipation(participant,
+				session.categories().findByName(category).get(),
+				session.instruments().findByName(instrument).get(),
+				session.juries().findByName(jury).get(),
 				exams);
-		for (  var a : assessments) {
+		for (var a : assessments) {
 			if (a.getGrade() == null) {
 				continue;
 			}
-			  var exam = Exam.findByName(session, a.getExam()).get();
-			  var grade = Grade.findByName(session, a.getGrade()).get();
+			var exam = session.exams().findByName(a.getExam()).get();
+			var grade = session.grades().findByName(a.getGrade()).get();
 			participation.getAssessment(exam).setGrade(grade);
 		}
-		session.persist(participation);
+		session.participations().persist(participation);
 	}
 
 	String getCategory() {
