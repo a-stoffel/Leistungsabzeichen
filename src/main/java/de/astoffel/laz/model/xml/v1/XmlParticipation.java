@@ -72,7 +72,7 @@ final class XmlParticipation {
 			}
 			var exam = session.exams().findByName(a.getExam()).get();
 			var grade = session.grades().findByName(a.getGrade()).get();
-			participation.getAssessment(exam).setGrade(grade);
+			participation.assessmentOf(exam).setGrade(grade);
 		}
 		session.participations().persist(participation);
 	}

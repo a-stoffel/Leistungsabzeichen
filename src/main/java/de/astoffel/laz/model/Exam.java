@@ -33,7 +33,7 @@ public final class Exam extends AbstractEntity<TransferExam> implements NamedEnt
 	private final Property<String> name;
 	private final Property<String> displayName;
 	private final Property<String> displayShortName;
-	private final Map<Category, Property<String>> descriptions;
+	private final Map<Category, String> descriptions;
 
 	Exam(TransferModel transferModel, TransferExam transfer) {
 		super(transferModel, TransferEntityType.EXAM, transfer);
@@ -55,6 +55,10 @@ public final class Exam extends AbstractEntity<TransferExam> implements NamedEnt
 		return sort;
 	}
 
+	public Integer getSort() {
+		return sort.getValue();
+	}
+
 	@Override
 	@PropertyDescriptor(name = "Name")
 	public Property<String> nameProperty() {
@@ -70,23 +74,23 @@ public final class Exam extends AbstractEntity<TransferExam> implements NamedEnt
 		return displayName;
 	}
 
+	public String getDisplayName() {
+		return displayName.getValue();
+	}
+
 	@PropertyDescriptor(name = "Display Short Name")
 	public Property<String> displayShortNameProperty() {
 		return displayShortName;
 	}
 
-	public Property<String> descriptionOf(Category category) {
+	public String getDisplayShortName() {
+		return displayShortName.getValue();
+	}
+
+	public String descriptionOf(Category category) {
 		var result = descriptions.get(category);
 		if (result == null) {
-			result = createProperty(
-					t -> t.getDescriptions().get(category.transfer()),
-					(t, v) -> {
-						if (v != null) {
-							t.getDescriptions().put(category.transfer(), v);
-						} else {
-							t.getDescriptions().remove(category.transfer());
-						}
-					});
+			result = transfer().descriptionOf(category.transfer());
 			descriptions.put(category, result);
 		}
 		return result;

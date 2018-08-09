@@ -141,7 +141,7 @@ public class TransferParticipation implements TransferEntity, Serializable {
 		return Collections.unmodifiableMap(assessments);
 	}
 
-	public TransferAssessment getAssessment(TransferExam exam) {
+	public TransferAssessment assessmentOf(TransferExam exam) {
 		return assessments.get(exam);
 	}
 

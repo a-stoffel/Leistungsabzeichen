@@ -59,4 +59,7 @@ public final class Instrument extends AbstractEntity<TransferInstrument>
 		return displayName;
 	}
 
+	public String getDisplayName() {
+		return displayName.getValue();
+	}
 }

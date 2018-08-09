@@ -37,6 +37,10 @@ public final class Assessment extends AbstractEntity<TransferAssessment> {
 				(t, g) -> t.setGrade(g.transfer())
 		);
 	}
+	
+	public boolean isParticipated() {
+		return grade.getValue() != null;
+	}
 
 	public Property<Grade> gradeProperty() {
 		return grade;

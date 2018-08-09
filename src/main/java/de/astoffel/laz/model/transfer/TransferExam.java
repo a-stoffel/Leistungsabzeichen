@@ -27,6 +27,7 @@ import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -84,7 +85,7 @@ public class TransferExam implements TransferEntity, Serializable {
 	@Column(nullable = false)
 	private String displayShortName;
 
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
 	@JoinTable(name = "Exam_Description")
 	@JoinColumn(name = "exam_id", nullable = false)
 	@MapKeyJoinColumn(name = "category_id", nullable = false)
@@ -170,7 +171,7 @@ public class TransferExam implements TransferEntity, Serializable {
 		return Collections.unmodifiableMap(descriptions);
 	}
 
-	public String getDescription(TransferCategory category) {
+	public String descriptionOf(TransferCategory category) {
 		return descriptions.get(category);
 	}
 

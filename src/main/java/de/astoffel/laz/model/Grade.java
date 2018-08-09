@@ -59,4 +59,8 @@ public final class Grade extends AbstractEntity<TransferGrade> implements NamedE
 		return displayName;
 	}
 
+	public String getDisplayName() {
+		return displayName.getValue();
+	}
+
 }

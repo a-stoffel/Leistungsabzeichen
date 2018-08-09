@@ -80,6 +80,10 @@ public final class Participation extends AbstractEntity<TransferParticipation> {
 		return instrument;
 	}
 
+	public Instrument getInstrument() {
+		return instrument.getValue();
+	}
+
 	public ReadOnlyProperty<Jury> juryProperty() {
 		return jury;
 	}
@@ -92,7 +96,7 @@ public final class Participation extends AbstractEntity<TransferParticipation> {
 		var result = assessments.get(exam);
 		if (result == null) {
 			result = model.assessments().wrap(
-					transfer().getAssessment(exam.transfer()));
+					transfer().assessmentOf(exam.transfer()));
 			assessments.put(exam, result);
 		}
 		return result;

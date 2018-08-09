@@ -43,9 +43,17 @@ public final class Meta extends AbstractEntity<TransferMeta> {
 		return location;
 	}
 
+	public String getLocation() {
+		return location.getValue();
+	}
+
 	@PropertyDescriptor(name = "Event Date")
 	public Property<String> eventDateProperty() {
 		return eventDate;
+	}
+
+	public String getEventDate() {
+		return eventDate.getValue();
 	}
 
 }
