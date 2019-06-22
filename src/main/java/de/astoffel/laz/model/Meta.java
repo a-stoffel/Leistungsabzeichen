@@ -28,13 +28,13 @@ import javafx.beans.property.Property;
 public final class Meta extends AbstractEntity<TransferMeta> {
 
 	private final Property<String> location;
-	private final Property<String> eventDate;
+	private final Property<String> when;
 
 	Meta(TransferModel transferModel, TransferMeta transfer) {
 		super(transferModel, TransferEntityType.META, transfer);
 		this.location = createProperty(TransferMeta::getLocation,
 				TransferMeta::setLocation);
-		this.eventDate = createProperty(TransferMeta::getEventDate,
+		this.when = createProperty(TransferMeta::getEventDate,
 				TransferMeta::setEventDate);
 	}
 
@@ -48,12 +48,12 @@ public final class Meta extends AbstractEntity<TransferMeta> {
 	}
 
 	@PropertyDescriptor(name = "Event Date")
-	public Property<String> eventDateProperty() {
-		return eventDate;
+	public Property<String> whenProperty() {
+		return when;
 	}
 
-	public String getEventDate() {
-		return eventDate.getValue();
+	public String getWhen() {
+		return when.getValue();
 	}
 
 }

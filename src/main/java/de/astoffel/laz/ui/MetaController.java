@@ -67,7 +67,7 @@ public class MetaController {
 			locationTextField.textProperty().unbindBidirectional(meta
 					.locationProperty());
 			eventDateTextField.textProperty().unbindBidirectional(meta
-					.eventDateProperty());
+					.whenProperty());
 			meta = null;
 		}
 		Project project = application.projectProperty().get();
@@ -80,7 +80,7 @@ public class MetaController {
 			locationTextField.textProperty().bindBidirectional(meta
 					.locationProperty());
 			eventDateTextField.textProperty().bindBidirectional(meta
-					.eventDateProperty());
+					.whenProperty());
 			locationTextField.setDisable(false);
 			eventDateTextField.setDisable(false);
 		}

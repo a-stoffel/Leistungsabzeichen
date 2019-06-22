@@ -57,10 +57,7 @@ final class XmlParticipation {
 	}
 
 	void create(TransferSession session, TransferParticipant participant) throws TransferException {
-		var exams = new HashSet<TransferExam>();
-		for (var a : assessments) {
-			exams.add(session.exams().findByName(a.getExam()).get());
-		}
+		var exams = new HashSet<>(session.exams().findAll());
 		var participation = new TransferParticipation(participant,
 				session.categories().findByName(category).get(),
 				session.instruments().findByName(instrument).get(),

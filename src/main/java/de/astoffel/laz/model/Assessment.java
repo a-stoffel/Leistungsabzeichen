@@ -34,7 +34,7 @@ public final class Assessment extends AbstractEntity<TransferAssessment> {
 		super(transferModel, TransferEntityType.ASSESSMENT, transfer);
 		this.grade = createProperty(
 				t -> model.grades().wrap(t.getGrade()),
-				(t, g) -> t.setGrade(g.transfer())
+				(t, g) -> t.setGrade(g != null ? g.transfer() : null)
 		);
 	}
 	

@@ -225,7 +225,6 @@ public class MainController {
 	private List<Participation> listCertificateParticipations() {
 		List<Participation> participations = participationController
 				.participationsProperty().stream()
-				.filter(p -> p.hasParticipated())
 				.sorted((a, b) -> {
 					int comp = a.getJury().getName().compareTo(b.getJury()
 							.getName());

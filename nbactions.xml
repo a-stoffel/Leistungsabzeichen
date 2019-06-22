@@ -10,10 +10,10 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address} --add-modules java.xml.bind -classpath %classpath de.astoffel.laz.Main</exec.args>
+                <exec.args>-agentlib:jdwp=transport=dt_socket,server=n,address=${jpda.address} --module-path /usr/share/openjfx/lib --add-modules=javafx.controls,javafx.fxml -classpath %classpath de.astoffel.laz.Main</exec.args>
                 <exec.executable>java</exec.executable>
                 <jpda.listen>true</jpda.listen>
-                <exec.workingdir>C:\Users\andreas\Documents\LeistungsabzeichenTest</exec.workingdir>
+                <exec.workingdir>/home/astoffel/NetBeansProjects/Leistungsabzeichen</exec.workingdir>
             </properties>
         </action>
         <action>
@@ -26,9 +26,9 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>--add-modules java.xml.bind -classpath %classpath de.astoffel.laz.Main</exec.args>
+                <exec.args>--module-path /usr/share/openjfx/lib --add-modules=javafx.controls,javafx.fxml -classpath %classpath de.astoffel.laz.Main</exec.args>
                 <exec.executable>java</exec.executable>
-                <exec.workingdir>C:\Users\andreas\Documents\LeistungsabzeichenTest</exec.workingdir>
+                <exec.workingdir>/home/astoffel/NetBeansProjects/Leistungsabzeichen</exec.workingdir>
             </properties>
         </action>
         <action>
@@ -41,9 +41,9 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>--add-modules java.xml.bind -classpath %classpath de.astoffel.laz.Main</exec.args>
+                <exec.args>--module-path /usr/share/openjfx/lib --add-modules=javafx.controls,javafx.fxml -classpath %classpath de.astoffel.laz.Main</exec.args>
                 <exec.executable>java</exec.executable>
-                <exec.workingdir>C:\Users\andreas\Documents\LeistungsabzeichenTest</exec.workingdir>
+                <exec.workingdir>/home/astoffel/NetBeansProjects/Leistungsabzeichen</exec.workingdir>
             </properties>
         </action>
     </actions>
